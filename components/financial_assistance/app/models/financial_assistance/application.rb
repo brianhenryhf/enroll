@@ -166,6 +166,7 @@ module FinancialAssistance
     index({ aasm_state: 1 })
     index({ created_at: 1 })
     index({ assistance_year: 1 })
+    index({ transfer_id: 1 })
     index({ aasm_state: 1, submitted_at: 1 })
     index({ aasm_state: 1, family_id: 1 })
     index({ "workflow_state_transitions.transition_at" => 1,
