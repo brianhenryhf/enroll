@@ -122,7 +122,9 @@
 
   <div id='income-error-popup'></div>
 
-  <%= render partial: 'financial_assistance/shared/end_date_warning' %>
+  <% if FinancialAssistanceRegistry.feature_enabled?(:other_income_end_date_warning) %>
+    <%= render partial: 'financial_assistance/shared/end_date_warning' %>
+  <% end %>
 
   <!-- Hidden unsaved income modal -->
   <div class="modal" id="unsavedIncomeChangesWarning" tabindex="-1" role="dialog" aria-hidden="true">

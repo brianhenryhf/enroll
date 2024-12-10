@@ -3,6 +3,7 @@ Feature: Start a new Financial Assistance Application and fills out Other Income
   Background: User logs in and visits applicant's other income page
     Given bs4_consumer_flow feature is enabled
     Given divorce agreement year feature is enabled
+    Given FAA other_income_end_date_warning feature is enabled
     Given a consumer, with a family, exists
     And is logged in
     And a benchmark plan exists

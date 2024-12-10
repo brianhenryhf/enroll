@@ -146,6 +146,9 @@ registry:
       - key: :remove_cubcare_references
         item: :remove_cubcare_references
         is_enabled: <%= ENV['REMOVE_CUBCARE_REFERENCES_IS_ENABLED'] || false %>
+      - key: :other_income_end_date_warning
+        item: :other_income_end_date_warning
+        is_enabled: <%= ENV['OTHER_INCOME_END_DATE_WARNING_IS_ENABLED'] || false %>
   - namespace:
     - :request_determination
     features:
