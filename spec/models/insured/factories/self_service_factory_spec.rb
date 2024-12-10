@@ -360,6 +360,16 @@ module Insured
           end
         end
 
+        context 'self serve APTC with applied_aptc' do
+          it 'creates enrollment with new applied aptc' do
+            subject.update_aptc(enrollment.id, 240.00, elected_aptc_pct: 0.2)
+            new_enrollment = family.reload.active_household.hbx_enrollments.last
+            expect(new_enrollment.aggregate_aptc_amount.to_f).to eq(max_aptc)
+            expect(new_enrollment.elected_aptc_pct).to eq(0.2)
+            expect(new_enrollment.applied_aptc_amount.to_f).to eq(240.00)
+          end
+        end
+
         context 'when ehb premium less than aptc' do
           before do
             effective_on = hbx_profile.benefit_sponsorship.current_benefit_period.start_on

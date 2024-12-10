@@ -71,7 +71,7 @@ module Insured
         reinstatement.save!
 
         if EnrollRegistry.feature_enabled?(:temporary_configuration_enable_multi_tax_household_feature)
-          mthh_update_enrollment_for_aptcs(new_effective_date, reinstatement, elected_aptc_pct.to_f, exclude_enrollments_list)
+          mthh_update_enrollment_for_aptcs(new_effective_date, reinstatement, elected_aptc_pct.to_f, exclude_enrollments_list, applied_aptc_amount)
         else
           update_enrollment_for_apcts(reinstatement, applied_aptc_amount)
         end
@@ -106,7 +106,7 @@ module Insured
         enrollment.update(eligible_child_care_subsidy: cost_calculator.total_childcare_subsidy_amount)
       end
 
-      def self.mthh_update_enrollment_for_aptcs(new_effective_date, reinstatement, elected_aptc_pct, exclude_enrollments_list)
+      def self.mthh_update_enrollment_for_aptcs(new_effective_date, reinstatement, elected_aptc_pct, exclude_enrollments_list, applied_aptc_amount = nil)
         result = ::Operations::PremiumCredits::FindAptc.new.call({
                                                                    hbx_enrollment: reinstatement,
                                                                    effective_on: new_effective_date,
@@ -116,10 +116,13 @@ module Insured
 
         aggregate_aptc_amount = result.value!
         ehb_premium = reinstatement.total_ehb_premium
+        aptc_amount = if applied_aptc_amount.present? && applied_aptc_amount.to_f > 0.0
+                        applied_aptc_amount
+                      else
+                        float_fix([(aggregate_aptc_amount * elected_aptc_pct), ehb_premium].min)
+                      end
 
-        applied_aptc_amount = float_fix([(aggregate_aptc_amount * elected_aptc_pct), ehb_premium].min)
-
-        reinstatement.update_attributes(elected_aptc_pct: elected_aptc_pct, applied_aptc_amount: applied_aptc_amount, aggregate_aptc_amount: aggregate_aptc_amount, ehb_premium: ehb_premium)
+        reinstatement.update_attributes(elected_aptc_pct: elected_aptc_pct, applied_aptc_amount: aptc_amount, aggregate_aptc_amount: aggregate_aptc_amount, ehb_premium: ehb_premium)
         update_child_care_subsidy_amount_for(reinstatement)
       end
 
