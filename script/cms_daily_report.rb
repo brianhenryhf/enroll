@@ -54,7 +54,6 @@ csr_aptc_enrolled_people = HbxEnrollment.collection.aggregate([
       "coverage_kind" => "health",
       "consumer_role_id" => {"$ne" => nil},
       "product_id" => { "$ne" => nil },
-      "created_at" => {"$gte" => @state_at, "$lte" => @end_at},
       "aasm_state" => {"$in" => HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::ENROLLED_STATUSES},
       "effective_on" => {"$gte" => Date.new(next_year, 1, 1), "$lt" => Date.new(next_year + 1, 1, 1)}
   }},
@@ -303,7 +302,7 @@ active_renewals_set = (re_enrolled_member_set & post_11_1_purchase_set) - has_be
 passive_renewals_set = re_enrolled_member_set - (post_11_1_purchase_set - has_been_renewed_set)
 
 puts "Total Member Enrolled(#{next_year}) Count: #{all_enrolled_people_set.size}"
-puts "Number of plan selections with APTC or CSR on a single day: #{csr_aptc_enrolled_people_set.size}"
+puts "Number of plan selections with APTC or CSR: #{csr_aptc_enrolled_people_set.size}"
 puts "Total New Member/Consumer selected #{next_year} enrollments after 11/1/#{year} : #{new_member_set.size}"
 puts "Total Re-Enrolled(#{next_year}) Member: #{re_enrolled_member_set.size}"
 puts "Total Active Renewed(#{next_year}) Member: #{active_renewals_set.size}"
@@ -970,7 +969,7 @@ CSV.open("#{Rails.root}/CMS_daily_report_summary.csv", "w", force_quotes: true) 
       ["","CMS Reporting Summary",""],
       ["","",""],
       ["","Total Plan Selections (net)", all_enrolled_people_set.size],
-      ["", "Number of plan selections with APTC or CSR on a single day", csr_aptc_enrolled_people_set.size],
+      ["", "Number of plan selections with APTC or CSR", csr_aptc_enrolled_people_set.size],
       ["","New Consumers (net)", new_member_set.size],
       ["","Total Re-enrollees (net)", re_enrolled_member_set.size],
       ["","Active Re-enrollees (net)", active_renewals_set.size],
