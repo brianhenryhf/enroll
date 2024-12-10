@@ -14,16 +14,15 @@ module Subscribers
       result = FinancialAssistance::Operations::Transfers::MedicaidGateway::AccountTransferReingest.new.call(payload)
 
       if result.success?
-        FinancialAssistance::Operations::Transfers::MedicaidGateway::AccountTransferResponse.new.call(result.value!)
-        ack(delivery_info.delivery_tag)
         logger.info "AtpReingestSubscriber: acked with success: #{result.success}"
       else
-        nack(delivery_info.delivery_tag)
-        logger.info "AtpReingestSubscriber: nacked with failure, errors: #{result.failure}"
+        logger.error "AtpReingestSubscriber: failed with errors: #{result.failure}"
       end
+
+      ack(delivery_info.delivery_tag)
     rescue StandardError => e
-      nack(delivery_info.delivery_tag)
       logger.error "AtpReingestSubscriber: error_message: #{e.message}, backtrace: #{e.backtrace}"
+      ack(delivery_info.delivery_tag)
     end
   end
 end
