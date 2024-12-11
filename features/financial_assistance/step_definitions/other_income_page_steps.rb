@@ -45,6 +45,11 @@ Then(/the user should see the end date warning note above the form/) do
   expect(page.has_css?(IvlIapOtherIncomePage.end_date_warning_text)).to eq true
 end
 
+Then(/the user should see the end date warning note without the word receive twice/) do
+  expect(find(IvlIapOtherIncomePage.end_date_warning_text)).to have_content "For alimony "
+  expect(find(IvlIapOtherIncomePage.end_date_warning_text)).not_to have_content "For alimony received "
+end
+
 Then(/^the unemployment income choices should show$/) do
   expect(page).to have_content "Add Another Unemployment Income"
 end

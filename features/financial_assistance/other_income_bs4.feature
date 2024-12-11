@@ -30,6 +30,14 @@ Feature: Start a new Financial Assistance Application and fills out Other Income
     And the user enters an end date
     Then the user should see the end date warning modal
 
+  Scenario: User enters other income alimony information with an end date
+    Given the user answers yes to having other income
+    And the user checks a other income checkbox
+    Then the user should see the end date warning note above the form
+    Then the user should see the end date warning note without the word receive twice
+    And the user enters an end date
+    Then the user should see the end date warning modal
+
   Scenario: User enters other income information with an end date longer than 4 digits
     Given the user answers yes to having other income
     And the user checks a other income checkbox
