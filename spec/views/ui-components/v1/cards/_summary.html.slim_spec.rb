@@ -360,6 +360,7 @@ RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
     before do
       allow(EnrollRegistry).to receive(:feature_enabled?).and_return(false)
       allow(EnrollRegistry).to receive(:feature_enabled?).with(:display_enr_summary).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:display_tax_household_summary).and_return(true)
       allow(EnrollRegistry).to receive(:feature_enabled?).with(:crm_publish_primary_subscriber).and_return(true)
       allow(EnrollRegistry).to receive(:feature_enabled?).with(:validate_quadrant).and_return(true)
       allow(EnrollRegistry).to receive(:feature_enabled?).with(:display_county).and_return(false)
@@ -442,6 +443,7 @@ RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
     before do
       allow(EnrollRegistry).to receive(:feature_enabled?).and_return(false)
       allow(EnrollRegistry).to receive(:feature_enabled?).with(:display_enr_summary).and_return(false)
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:display_tax_household_summary).and_return(false)
       allow(EnrollRegistry).to receive(:feature_enabled?).with(:crm_publish_primary_subscriber).and_return(true)
       allow(EnrollRegistry).to receive(:feature_enabled?).with(:validate_quadrant).and_return(true)
       allow(EnrollRegistry).to receive(:feature_enabled?).with(:display_county).and_return(false)
@@ -470,6 +472,30 @@ RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
 
     it 'should not include full name of person' do
       expect(rendered).to_not have_content(hbx_enrollment_member.person.full_name.titleize)
+    end
+
+    it 'should not include full name of person' do
+      expect(rendered).not_to have_content(hbx_enrollment_member.person.full_name.titleize)
+    end
+
+    it 'should not include enrollment tax household details text' do
+      expect(rendered).not_to have_content(l10n('enrollment.tax_household.details'))
+    end
+
+    it 'should not include application details text' do
+      expect(rendered).not_to have_content(l10n('application.details'))
+    end
+
+    it 'should not include application ID text' do
+      expect(rendered).not_to have_content(l10n('application_id'))
+    end
+
+    it 'should not include application submitted_at text' do
+      expect(rendered).not_to have_content(l10n('application.submitted_at'))
+    end
+
+    it 'should not include tax household members text' do
+      expect(rendered).not_to have_content(l10n('tax_household_enrollment.members'))
     end
   end
 end

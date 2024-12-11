@@ -384,14 +384,20 @@ module Config
       EnrollRegistry.feature?("aca_event_logging") && EnrollRegistry.feature_enabled?("aca_event_logging")
     end
 
-    def display_enr_summary_is_enabled(enrollment)
-      if EnrollRegistry.feature_enabled?(:display_enr_summary)
-        return true if enrollment.hbx_enrollment_members.all? { |member| member.person != current_user.person }
-      elsif current_user.has_hbx_staff_role?
-        true
+    def display_summary_is_enabled?(enrollment, feature_flag)
+      if EnrollRegistry.feature_enabled?(feature_flag)
+        enrollment.hbx_enrollment_members.all? { |member| member.person != current_user.person }
       else
-        false
+        current_user.has_hbx_staff_role?
       end
+    end
+
+    def display_enr_summary_is_enabled(enrollment)
+      display_summary_is_enabled?(enrollment, :display_enr_summary)
+    end
+
+    def display_tax_household_enrollment_summary?(enrollment)
+      display_summary_is_enabled?(enrollment, :display_tax_household_summary)
     end
 
     def osse_aptc_minimum_enabled?

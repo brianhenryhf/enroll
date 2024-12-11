@@ -37,7 +37,7 @@
           <dt><%= l10n('product_hios_id') %></dt>
           <dd><%= @hbx_enrollment&.product&.hios_id || l10n('not_available') %></dd>
 
-          <% if @hbx_enrollment&.is_health_enrollment? %>
+          <% if display_tax_household_enrollment_summary?(@hbx_enrollment) && @hbx_enrollment&.is_health_enrollment? %>
             <dt><%= l10n('enrollment.health_plan.ehb_premium') %></dt>
             <dd><%= @hbx_enrollment&.total_ehb_premium %></dd>
           <% end %>
@@ -63,7 +63,7 @@
           </dl>
         <% end %>
 
-        <% if (@hbx_enrollment.applied_aptc_amount.present? && @hbx_enrollment.applied_aptc_amount.cents > 0) %>
+        <% if (display_tax_household_enrollment_summary?(@hbx_enrollment) && @hbx_enrollment.applied_aptc_amount.present? && @hbx_enrollment.applied_aptc_amount.cents > 0) %>
           <h1 data-cuke="enrollment_tax_household_details"><%= l10n('enrollment.tax_household.details') %></h1>
           <h2 data-cuke="application_detail"><%= l10n('application.details') %></h2>
           <% application = @hbx_enrollment.tax_household_group&.application %>
