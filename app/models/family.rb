@@ -111,6 +111,7 @@ class Family
   index({"irs_groups.hbx_assigned_id" => 1})
 
   index({"special_enrollment_periods._id" => 1})
+  index({ "special_enrollment_periods.start_on" => 1, "special_enrollment_periods.end_on" => 1 })
 
   index({"family_members.person_id" => 1, hbx_assigned_id: 1})
 

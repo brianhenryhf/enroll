@@ -2296,4 +2296,11 @@ describe Family, "with index definitions" do
     Family.remove_indexes
     Family.create_indexes
   end
+
+  it 'has the correct index on special_enrollment_periods fields' do
+    indexes = Family.index_specifications
+    expected_index = {:"special_enrollment_periods.start_on" => 1, :"special_enrollment_periods.end_on" => 1}
+
+    expect(indexes.map(&:key)).to include(expected_index)
+  end
 end
