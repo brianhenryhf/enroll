@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Exchanges::BrokerApplicantsController do
@@ -7,7 +9,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
 
     before :each do
       sign_in(user)
-      get :index, format: :js, xhr:true
+      get :index, format: :js, xhr: true
     end
 
     it "should render index" do
@@ -33,7 +35,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
 
     before :each do
       sign_in(user)
-      get :edit, params:{id: broker_role.person.id}, format: :html, xhr:true
+      get :edit, params: {id: broker_role.person.id}, format: :html, xhr: true
     end
 
     it "should render edit" do
@@ -106,7 +108,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
 
     context 'when application denied' do
       before :each do
-        put :update, params:{id: broker_role.person.id, deny: true}, format: :js
+        put :update, params: {id: broker_role.person.id, deny: true}, format: :js
         broker_role.reload
       end
 
@@ -138,21 +140,48 @@ RSpec.describe Exchanges::BrokerApplicantsController do
       end
 
       context "for pending application" do
-        before :each do
-          allow(broker_role).to receive(:is_primary_broker?).and_return(true)
-          broker_role.pending!
-          put :update, params: { id: broker_role.person.id, extend: true }, format: :js
-          broker_role.reload
+        context 'application_extended' do
+          before :each do
+            allow(broker_role).to receive(:is_primary_broker?).and_return(true)
+            broker_role.pending!
+            put :update, params: { id: broker_role.person.id, extend: true }, format: :js
+            broker_role.reload
+          end
+
+          it 'should move application to application_extended' do
+            expect(assigns(:broker_applicant))
+            expect(broker_role.aasm_state).to eq 'application_extended'
+          end
+
+          it 'should redirect' do
+            expect(response).to have_http_status(:redirect)
+            expect(response).to redirect_to('/exchanges/hbx_profiles')
+          end
         end
 
-        it 'should move application to application_extended' do
-          expect(assigns(:broker_applicant))
-          expect(broker_role.aasm_state).to eq 'application_extended'
-        end
+        context 'move to pending' do
+          before :each do
+            broker_role.update_attributes({ broker_agency_profile_id: @broker_agency_profile.id })
+            allow(broker_role).to receive(:is_primary_broker?).and_return(true)
+            broker_role.pending!
+            put :update, params: { id: broker_role.person.id, pending: "pending", person: { broker_role_attributes: { training: true, carrier_appointments: {}, reason: "test"} } }, format: :js
+            broker_role.reload
+          end
 
-        it 'should redirect' do
-          expect(response).to have_http_status(:redirect)
-          expect(response).to redirect_to('/exchanges/hbx_profiles')
+          it 'should move application to broker_agency_pending' do
+            expect(assigns(:broker_applicant))
+            expect(broker_role.aasm_state).to eq 'broker_agency_pending'
+          end
+
+          it 'should store reason if any' do
+            expect(assigns(:broker_applicant))
+            expect(broker_role.reason).to eq 'test'
+          end
+
+          it 'should redirect' do
+            expect(response).to have_http_status(:redirect)
+            expect(response).to redirect_to('/exchanges/hbx_profiles')
+          end
         end
       end
 
@@ -180,7 +209,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
 
       before :each do
         FactoryBot.create(:hbx_profile)
-        put :update, params:{id: broker_role.person.id, approve: true, person: { broker_role_attributes: { training: true , carrier_appointments: {}} } }, format: :js
+        put :update, params: {id: broker_role.person.id, approve: true, person: { broker_role_attributes: { training: true, carrier_appointments: {}} } }, format: :js
         broker_role.reload
       end
 
@@ -200,7 +229,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
       context 'when application is approved' do
         before :each do
           broker_role.update_attributes({ broker_agency_profile_id: @broker_agency_profile.id })
-          put :update, params: {id: broker_role.person.id, approve: true, person: { broker_role_attributes: { training: true , carrier_appointments: {}} }} , format: :js
+          put :update, params: {id: broker_role.person.id, approve: true, person: { broker_role_attributes: { training: true, carrier_appointments: {}} }}, format: :js
           broker_role.reload
         end
 
@@ -250,7 +279,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
           before :each do
             allow(Settings.aca).to receive(:broker_carrier_appointments_enabled).and_return(true)
             broker_role.update_attributes({ broker_agency_profile_id: @broker_agency_profile.id })
-            put :update, params:{id: broker_role.person.id, pending: true, person:  { broker_role_attributes: { training: true , carrier_appointments: {}} }} , format: :js
+            put :update, params: {id: broker_role.person.id, pending: true, person:  { broker_role_attributes: { training: true, carrier_appointments: {}} }}, format: :js
             broker_role.reload
           end
 
@@ -280,7 +309,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
             person_hash = ActionController::Parameters.new({ broker_role_attributes: { training: true, carrier_appointments: carrier_appointments_hash } }).permit!
             Settings.aca.broker_carrier_appointments_enabled = false
             broker_role.update_attributes({ broker_agency_profile_id: @broker_agency_profile.id })
-            put :update, params:{id: broker_role.person.id, pending: true, person: person_hash}, format: :js
+            put :update, params: {id: broker_role.person.id, pending: true, person: person_hash}, format: :js
             broker_role.reload
           end
 
@@ -305,7 +334,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
         before :each do
           broker_role.update_attributes({ broker_agency_profile_id: @broker_agency_profile.id })
           broker_role.approve!
-          put :update, params:{id: broker_role.person.id, decertify: true}, format: :js
+          put :update, params: {id: broker_role.person.id, decertify: true}, format: :js
           broker_role.reload
         end
 
@@ -322,7 +351,7 @@ RSpec.describe Exchanges::BrokerApplicantsController do
           broker_role.update_attributes({ broker_agency_profile_id: @broker_agency_profile.id })
           broker_role.approve!
           broker_role.decertify!
-          put :update, params:{id: broker_role.person.id, recertify: true}, format: :js
+          put :update, params: {id: broker_role.person.id, recertify: true}, format: :js
           broker_role.reload
         end
 

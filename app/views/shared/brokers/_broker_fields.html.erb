@@ -39,7 +39,7 @@
   </dl>
   <section class="my-3">
     <%= f.fields_for :broker_role do |broker_role_fields| %>
-      <% disabled = (broker_or_staff_role.active? || broker_or_staff_role.agency_pending?) ? true : false %>
+      <% disabled = broker_or_staff_role.active? ? true : false %>
       <label for="licensed" class="d-flex align-items-center">
         <%= broker_role_fields.check_box :license, id: "licensed" %>
         <span class="ml-1"><%= l10n("license") %></span>
@@ -214,7 +214,7 @@
                   <%end%>
                 </td>
               </tr>
-              <% disabled = (broker_or_staff_role.active? || broker_or_staff_role.agency_pending?) ? true : false %>
+              <% disabled = broker_or_staff_role.active? ? true : false %>
               <tr>
                 <th style="vertical-align: top;"><%= l10n("reason") %>
                   <span class="text-danger"></span>:
