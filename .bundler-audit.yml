@@ -1,2 +1,5 @@
 ignore:
   - CVE-2024-21510
+  # ignore security advisory https://github.com/rails/rails/security/advisories/GHSA-vfm5-rmrh-j26v which does not impact us.
+  # futher information is available in the SECURITY.md file
+  - CVE-2024-54133

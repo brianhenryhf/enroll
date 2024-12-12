@@ -17,3 +17,22 @@
 **Ongoing Measures:**
 1. Regular review of dependencies and their security advisories.
 2. Periodic assessment of our usage of Resque to ensure it remains unexposed to the vulnerable Sinatra components.
+
+### Advisory GHSA-vfm5-rmrh-j26v - Action Dispatch 2024-12-10
+
+**Vulnerability:**
+
+Source: https://github.com/rails/rails/security/advisories/GHSA-vfm5-rmrh-j26v
+NVD: https://nvd.nist.gov/vuln/detail/CVE-2024-54133
+
+There is a possible Cross Site Scripting (XSS) vulnerability in the content_security_policy helper in Action Pack.
+
+Applications which set Content-Security-Policy (CSP) headers dynamically from untrusted user input may be vulnerable to carefully crafted inputs being able to inject new directives into the CSP. This could lead to a bypass of the CSP and its protection against XSS and other attacks.
+
+**Mitigation:**
+
+No mitigation required as we are not vulnerable.
+
+We do not dynamically set our CSP values using user input.
+
+This specific security advisory has been added to the bundler audit ignore file.
