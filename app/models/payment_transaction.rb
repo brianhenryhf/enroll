@@ -2,7 +2,7 @@ class PaymentTransaction
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  belongs_to :family
+  belongs_to :family, index: true
 
   field :payment_transaction_id, type: String
   field :carrier_id, type: BSON::ObjectId
@@ -12,6 +12,12 @@ class PaymentTransaction
   field :body, type: String
   field :submitted_at, type: DateTime
   field :source, type: String
+
+  index({ status: 1 })
+  index({ enrollment_id: 1 })
+  index({ enrollment_effective_date: 1 })
+  index({ payment_transaction_id: 1 })
+  index({ carrier_id: 1 })
 
   before_save :generate_payment_transaction_id, :set_submitted_at
 

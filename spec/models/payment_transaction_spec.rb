@@ -39,4 +39,15 @@ RSpec.describe PaymentTransaction, :type => :model, dbclean: :after_each do
       expect(subject.source).to eq source
     end
   end
+
+  context "payment transactions" do
+    it 'should have the indexes' do
+      PaymentTransaction.create_indexes
+      indexes = PaymentTransaction.collection.indexes.map { |index| index['key'] }
+      expect(indexes).to include({:family_id => 1})
+      expect(indexes).to include({:status => 1})
+      expect(indexes).to include({:enrollment_id => 1})
+      expect(indexes).to include({:payment_transaction_id => 1})
+    end
+  end
 end
