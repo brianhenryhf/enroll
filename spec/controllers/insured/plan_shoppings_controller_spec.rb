@@ -1412,6 +1412,89 @@ RSpec.describe Insured::PlanShoppingsController, :type => :controller, dbclean: 
           expect(assigns(:plans).first.id.to_s).to eq expected_product.id.to_s
         end
       end
+
+      context "when member is already enrolled
+      - member only has csr
+      - 0 aptc
+      - and plan shops" do
+        let(:benchmark_premium) { primary_bp }
+        let(:primary_bp) { 500.00 }
+        let(:tax_households) { tax_household_group.tax_households }
+        let(:tax_household) { tax_households.first }
+        let(:slcsp_info) do
+          OpenStruct.new(
+            households: [OpenStruct.new(
+              household_id: tax_household.id,
+              household_benchmark_ehb_premium: benchmark_premium,
+              members: family.family_members.collect do |fm|
+                OpenStruct.new(
+                  family_member_id: fm.id.to_s,
+                  relationship_with_primary: fm.primary_relationship,
+                  date_of_birth: fm.dob,
+                  age_on_effective_date: fm.age_on(TimeKeeper.date_of_record)
+                )
+              end
+            )]
+          )
+        end
+
+        let(:yearly_expected_contribution) { 125.00 * 12 }
+        let(:primary_applicant) { family.primary_applicant }
+        let!(:tax_household_group) do
+          tax_household_group = family.tax_household_groups.create!(
+            assistance_year: TimeKeeper.date_of_record.year,
+            source: 'Admin',
+            start_on: TimeKeeper.date_of_record.beginning_of_year
+          )
+
+          th = FactoryBot.build(:tax_household, household: family.active_household, yearly_expected_contribution: yearly_expected_contribution, max_aptc: 0)
+          th.tax_household_members = [
+            FactoryBot.build(:tax_household_member, applicant_id: primary_applicant.id, tax_household: th, csr_percent_as_integer: 87, csr_eligibility_kind: "csr_87")
+          ]
+
+          tax_household_group.tax_households << th
+          tax_household_group.save
+          tax_household_group
+        end
+
+        let!(:hbx_profile) do
+          FactoryBot.create(:hbx_profile,
+                            :no_open_enrollment_coverage_period,
+                            coverage_year: TimeKeeper.date_of_record.year)
+        end
+
+        let!(:expected_product) do
+          benefit_sponsorship = HbxProfile.current_hbx.benefit_sponsorship
+          benefit_coverage_period = benefit_sponsorship.current_benefit_period
+          benefit_coverage_period.elected_plans_by_enrollment_members(hbx_enrollment.hbx_enrollment_members, hbx_enrollment.coverage_kind, nil, "individual").last
+        end
+
+        let!(:coverage_selected_enrollment) {family.hbx_enrollments.coverage_selected.first.update_attributes(product_id: expected_product.id)}
+        let!(:shopping_enrollment) do
+          hbx_enrollment.update_attributes(aasm_state: 'shopping')
+          hbx_enrollment
+        end
+
+        before do
+          allow(::Operations::BenchmarkProducts::IdentifySlcspWithPediatricDentalCosts).to receive(:new).and_return(
+            double('IdentifySlcspWithPediatricDentalCosts',
+                   call: double(:value! => slcsp_info, :success? => true))
+          )
+
+          sign_in user
+          ::Operations::Eligibilities::BuildFamilyDetermination.new.call(family: family, effective_date: shopping_enrollment.effective_on)
+          allow(EnrollRegistry[:temporary_configuration_enable_multi_tax_household_feature].feature).to receive(:is_enabled).and_return(true)
+          benefit_coverage_period = HbxProfile.current_hbx.benefit_sponsorship.benefit_coverage_periods.first
+          benefit_package = benefit_coverage_period.benefit_packages.first
+          benefit_package.benefit_eligibility_element_group.update_attributes(cost_sharing: "csr_87")
+
+          get :plans, params: { id: shopping_enrollment.id, year: year, market_kind: "individual", coverage_kind: "health", change_plan: "change_by_qle"}
+        end
+
+        it "should return enrolled product first in the list" do
+          expect(assigns(:plans).first.id.to_s).to eq expected_product.id.to_s
+        end
+      end
     end
 
     context "Post set_elected_aptc", :dbclean => :around_each do
