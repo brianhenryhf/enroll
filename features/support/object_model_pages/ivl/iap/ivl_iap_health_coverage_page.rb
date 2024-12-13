@@ -187,8 +187,12 @@ class IvlIapHealthCoveragePage
     'a[href="#has_eligible_health_coverage"]'
   end
 
-  def self.continue
-    '.interaction-click-control-continue'
+  def self.continue_btn
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'a[id="btn-continue"]'
+    else
+      '.interaction-click-control-continue'
+    end
   end
 
   def self.back_to_all_house_members

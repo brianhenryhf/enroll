@@ -1,10 +1,11 @@
 Feature: Start a new Financial Assistance Application and answers questions on Other Questions page
 
   Background: User logs in and visits applicant's other questions page
-    Given bs4_consumer_flow feature is disable
+    Given bs4_consumer_flow feature is enabled
     And the FAA feature configuration is enabled
     And the primary caretaker question configuration is enabled
     And FAA student_follow_up_questions feature is enabled
+    And FAA disable_employer_address_fields feature is enabled
     Given a consumer, with a family, exists
     And the consumer is RIDP verified
     And is logged in
@@ -23,6 +24,13 @@ Feature: Start a new Financial Assistance Application and answers questions on O
   Scenario: Foster care - answered yes
     Given the user has an age between 18 and 26 years old
     And the user answered yes to the has this person ever been in foster care question
-    Then the where was this person in foster care question should display
+   Then the where was this person in foster care question should display
     And the how old was this person when they left foster care question should display
     And the was this person enrolled in medicare when they left foster care should display
+
+  Scenario: Foster care - answered no
+    Given the user has an age between 18 and 26 years old
+    And the user answered no to the has this person ever been in foster care question
+   Then the where was this person in foster care question should not display
+    And the how old was this person when they left foster care question should not display
+    And the was this person enrolled in medicare when they left foster care should not display

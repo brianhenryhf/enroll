@@ -171,7 +171,7 @@ When(/^primary applicant is in Info Completed state$/) do
     find(IvlIapHealthCoveragePage.has_eligible_medicaid_cubcare_false).click
     find(IvlIapHealthCoveragePage.has_eligibility_changed_false).click
   end
-  find(IvlIapHealthCoveragePage.continue).click
+  find(IvlIapHealthCoveragePage.continue_btn).click
   find(IvlIapOtherQuestions.is_pregnant_no_radiobtn, wait: 10).click
   find(IvlIapOtherQuestions.is_post_partum_period_no_radiobtn).click
   find(IvlIapOtherQuestions.person_blind_no_radiobtn).click

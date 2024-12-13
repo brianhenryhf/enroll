@@ -4,11 +4,11 @@
 class IvlIapOtherIncomePage
 
   def self.has_unemployment_income_yes_radiobtn
-    '#has_unemployment_income_true' unless EnrollRegistry[:bs4_consumer_flow].enabled?
+    '#has_unemployment_income_true'
   end
 
   def self.has_unemployment_income_no_radiobtn
-    '#has_unemployment_income_false' unless EnrollRegistry[:bs4_consumer_flow].enabled?
+    '#has_unemployment_income_false'
   end
 
   def self.not_sure_has_unemployment_link
@@ -20,7 +20,11 @@ class IvlIapOtherIncomePage
   end
 
   def self.how_often_dropdown
-    '[data-cuke="unemployment-income-how-often-dropdown"]'
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'select[name="income[frequency_kind]"]'
+    else
+      '[data-cuke="unemployment-income-how-often-dropdown"]'
+    end
   end
 
   def self.select_bi_weekly
@@ -36,7 +40,11 @@ class IvlIapOtherIncomePage
   end
 
   def self.select_yearly
-    '.new-unemployment-income-form li.interaction-choice-control-income-frequency-kind-7'
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'option[value="yearly"]'
+    else
+      '.new-unemployment-income-form li.interaction-choice-control-income-frequency-kind-7'
+    end
   end
 
   def self.income_from
@@ -64,7 +72,7 @@ class IvlIapOtherIncomePage
   end
 
   def self.has_other_income_yes_radiobtn
-    '#has_other_income_true' unless EnrollRegistry[:bs4_consumer_flow].enabled?
+    '#has_other_income_true'
   end
 
   def self.has_other_income_no_radiobtn
@@ -160,11 +168,19 @@ class IvlIapOtherIncomePage
   end
 
   def self.interest_checkbox
-    'input[class="other-income-checkbox-interest interaction-choice-control-value-other-income-kind"]'
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      '#other-income-checkbox-interest'
+    else
+      '#other_income_kind[value="interest"]'
+    end
   end
 
   def self.interest_how_often_dropdown
-    '.new-other-income-form.interest span.label'
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'select[name="income[frequency_kind]"]'
+    else
+      '.new-other-income-form.interest span.label'
+    end
   end
 
   def self.interest_select_bi_weekly
@@ -176,7 +192,11 @@ class IvlIapOtherIncomePage
   end
 
   def self.interest_select_yearly
-    '.new-other-income-form.interest li.interaction-choice-control-income-frequency-kind-7'
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'option[value="yearly"]'
+    else
+      '.new-other-income-form.interest li.interaction-choice-control-income-frequency-kind-7'
+    end
   end
 
   def self.pension_or_retirement_checkbox

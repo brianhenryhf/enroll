@@ -8,7 +8,7 @@
 <% content_for(:back_to_account_flag) { "true" } %>
 
 <% if @applicant.present? %>
-  <% content_for(:title) { l10n("faa.left_nav.my_household") } %>
+  <% content_for(:title) { l10n("faa.nav.my_household") } %>
   <% content_for(:title_link) { edit_application_path(@application) } %>
 <% else %>
   <% content_for(:title) { l10n('faa.my_applications') } %>

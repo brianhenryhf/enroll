@@ -418,7 +418,7 @@ module FinancialAssistance
       nav[:links] = true
       nav[:step] = step
       view_applications = (applicant.present? || step != 1) && application.is_draft?
-      nav[:title] = view_applications ? l10n("faa.left_nav.my_household") : l10n("faa.results.view_my_applications").titleize
+      nav[:title] = view_applications ? l10n("faa.nav.my_household") : l10n("faa.results.view_my_applications").titleize
       nav[:title_link] = view_applications ? edit_application_path(application) : financial_assistance.applications_path
       nav[:subheading] = l10n("faa.nav.applicant_subheader")
 

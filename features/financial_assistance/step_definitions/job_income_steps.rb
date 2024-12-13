@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 Given(/^the user answers no to having an income from an employer$/) do
-  find(IvlIapJobIncomeInformationPage.has_job_income_no_radiobtn).click
   sleep 1
+  find(IvlIapJobIncomeInformationPage.has_job_income_no_radiobtn).click
 end
 
 Then(/^the job income form should not show$/) do
@@ -26,7 +26,7 @@ end
 
 Then(/^the job income form should show$/) do
   expect(page).to have_xpath("//*[@id='income_employer_name']")
-  expect(page).to have_xpath("//*[@id='income_employer_address_address_1']")
+  expect(page).to have_xpath("//*[@id='income_employer_phone_full_phone_number']")
 end
 
 Given(/^the user answers yes to having self employment income$/) do
@@ -41,35 +41,39 @@ end
 And(/^the user fills out the required employer information$/) do
   fill_in IvlIapJobIncomeInformationPage.employer_name, with: "Sample Employer"
   fill_in IvlIapJobIncomeInformationPage.income_amount, with: '23.3'
-  find(IvlIapJobIncomeInformationPage.income_how_often_dropdown).click
+  find_all(IvlIapJobIncomeInformationPage.frequency).first.click
   find(IvlIapJobIncomeInformationPage.select_yearly).click
   fill_in IvlIapJobIncomeInformationPage.income_from, with: "11/11/2016"
   fill_in IvlIapJobIncomeInformationPage.income_to, with: "11/11/2017"
   find(IvlIapJobIncomeInformationPage.calendar).click
   fill_in IvlIapJobIncomeInformationPage.income_employer_phone_number, with: "2036548484"
-  fill_in IvlIapJobIncomeInformationPage.income_employer_address_1, with: "12 main st"
-  fill_in IvlIapJobIncomeInformationPage.income_employer_address_2, with: "beside starbucks"
-  fill_in IvlIapJobIncomeInformationPage.income_employer_city, with: "washington"
-  find(IvlIapJobIncomeInformationPage.income_employer_state_dropdown).click
-  find(IvlIapJobIncomeInformationPage.select_va_state).click
-  fill_in IvlIapJobIncomeInformationPage.income_employer_zip, with: "22046"
+  unless FinancialAssistanceRegistry[:disable_employer_address_fields].enabled?
+    fill_in IvlIapJobIncomeInformationPage.income_employer_address_1, with: "12 main st"
+    fill_in IvlIapJobIncomeInformationPage.income_employer_address_2, with: "beside starbucks"
+    fill_in IvlIapJobIncomeInformationPage.income_employer_city, with: "washington"
+    find(IvlIapJobIncomeInformationPage.income_employer_state_dropdown).click
+    find(IvlIapJobIncomeInformationPage.select_va_state).click
+    fill_in IvlIapJobIncomeInformationPage.income_employer_zip, with: "22046"
+  end
 end
 
 And(/^the user fills out the required employer information with incorrect dates$/) do
   fill_in IvlIapJobIncomeInformationPage.employer_name, with: "Sample Employer"
   fill_in IvlIapJobIncomeInformationPage.income_amount, with: '23.3'
-  find(IvlIapJobIncomeInformationPage.income_how_often_dropdown).click
+  find_all(IvlIapJobIncomeInformationPage.frequency).first.click
   find(IvlIapJobIncomeInformationPage.select_yearly).click
   fill_in IvlIapJobIncomeInformationPage.income_from, with: "11/11/2017"
   fill_in IvlIapJobIncomeInformationPage.income_to, with: "11/11/2016"
   find(IvlIapJobIncomeInformationPage.calendar).click
   fill_in IvlIapJobIncomeInformationPage.income_employer_phone_number, with: "2036548484"
-  fill_in IvlIapJobIncomeInformationPage.income_employer_address_1, with: "12 main st"
-  fill_in IvlIapJobIncomeInformationPage.income_employer_address_2, with: "beside starbucks"
-  fill_in IvlIapJobIncomeInformationPage.income_employer_city, with: "washington"
-  find(IvlIapJobIncomeInformationPage.income_employer_state_dropdown).click
-  find(IvlIapJobIncomeInformationPage.select_va_state).click
-  fill_in IvlIapJobIncomeInformationPage.income_employer_zip, with: "22046"
+  unless FinancialAssistanceRegistry[:disable_employer_address_fields].enabled?
+    fill_in IvlIapJobIncomeInformationPage.income_employer_address_1, with: "12 main st"
+    fill_in IvlIapJobIncomeInformationPage.income_employer_address_2, with: "beside starbucks"
+    fill_in IvlIapJobIncomeInformationPage.income_employer_city, with: "washington"
+    find(IvlIapJobIncomeInformationPage.income_employer_state_dropdown).click
+    find(IvlIapJobIncomeInformationPage.select_va_state).click
+    fill_in IvlIapJobIncomeInformationPage.income_employer_zip, with: "22046"
+  end
 end
 
 And(/^the user enters a start date in the future$/) do
@@ -121,7 +125,6 @@ end
 Then(/^the employer information should be saved on the page$/) do
   expect(page).to have_content("Sample Employer")
   expect(page).to have_content("23.3")
-  expect(page).to have_content("beside starbucks")
 end
 
 Given(/^the user has entered at least one job income information$/) do
@@ -129,18 +132,20 @@ Given(/^the user has entered at least one job income information$/) do
   sleep 1
   fill_in IvlIapJobIncomeInformationPage.employer_name, with: "Sample Employer1"
   fill_in IvlIapJobIncomeInformationPage.income_amount, with: '33.3'
-  find(IvlIapJobIncomeInformationPage.income_how_often_dropdown).click
+  find_all(IvlIapJobIncomeInformationPage.frequency).first.click
   find(IvlIapJobIncomeInformationPage.select_yearly).click
   fill_in IvlIapJobIncomeInformationPage.income_from, with: "11/11/2016"
   fill_in IvlIapJobIncomeInformationPage.income_to, with: "11/11/2017"
   find(IvlIapJobIncomeInformationPage.calendar).click
   fill_in IvlIapJobIncomeInformationPage.income_employer_phone_number, with: "2036548484"
-  fill_in IvlIapJobIncomeInformationPage.income_employer_address_1, with: "12 main st"
-  fill_in IvlIapJobIncomeInformationPage.income_employer_address_2, with: "beside starbucks1"
-  fill_in IvlIapJobIncomeInformationPage.income_employer_city, with: "washington"
-  find(IvlIapJobIncomeInformationPage.income_employer_state_dropdown).click
-  find(IvlIapJobIncomeInformationPage.select_va_state).click
-  fill_in IvlIapJobIncomeInformationPage.income_employer_zip, with: "22046"
+  unless FinancialAssistanceRegistry[:disable_employer_address_fields].enabled?
+    fill_in IvlIapJobIncomeInformationPage.income_employer_address_1, with: "12 main st"
+    fill_in IvlIapJobIncomeInformationPage.income_employer_address_2, with: "beside starbucks1"
+    fill_in IvlIapJobIncomeInformationPage.income_employer_city, with: "washington"
+    find(IvlIapJobIncomeInformationPage.income_employer_state_dropdown).click
+    find(IvlIapJobIncomeInformationPage.select_va_state).click
+    fill_in IvlIapJobIncomeInformationPage.income_employer_zip, with: "22046"
+  end
   find(IvlIapJobIncomeInformationPage.income_save_btn).click
 end
 
@@ -155,15 +160,17 @@ end
 Then(/^the new employer information should be saved on the page$/) do
   expect(page).to have_content("Sample Employer")
   expect(page).to have_content("23.3")
-  expect(page).to have_content("beside starbucks")
   expect(page).to have_content("Sample Employer1")
   expect(page).to have_content("33.3")
-  expect(page).to have_content("beside starbucks1")
+  unless FinancialAssistanceRegistry[:disable_employer_address_fields].enabled?
+    expect(page).to have_content("beside starbucks")
+    expect(page).to have_content("beside starbucks1")
+  end
 end
 
 And(/^the user fills out the required self employment information$/) do
   fill_in IvlIapJobIncomeInformationPage.income_amount, with: '23.3'
-  find(IvlIapJobIncomeInformationPage.self_employee_how_often_dropdown).click
+  find(IvlIapJobIncomeInformationPage.self_employee_frequency).click
   find(IvlIapJobIncomeInformationPage.self_employed_yearly).click
   fill_in IvlIapJobIncomeInformationPage.income_from, with: "11/11/2016"
   fill_in IvlIapJobIncomeInformationPage.income_to, with: "11/11/2017"
@@ -172,7 +179,7 @@ end
 
 And(/^the user fills out the required self employment information with incorrect dates$/) do
   fill_in IvlIapJobIncomeInformationPage.income_amount, with: '23.3'
-  find(IvlIapJobIncomeInformationPage.self_employee_how_often_dropdown).click
+  find(IvlIapJobIncomeInformationPage.self_employee_frequency).click
   find(IvlIapJobIncomeInformationPage.self_employed_yearly).click
   fill_in IvlIapJobIncomeInformationPage.income_from, with: "11/11/2017"
   fill_in IvlIapJobIncomeInformationPage.income_to, with: "11/11/2016"
@@ -183,7 +190,7 @@ Given(/^the user has entered at least one self employment information$/) do
   find(IvlIapJobIncomeInformationPage.has_self_employee_income_yes_radiobtn).click
   sleep 1
   fill_in IvlIapJobIncomeInformationPage.income_amount, with: '23.3'
-  find(IvlIapJobIncomeInformationPage.self_employee_how_often_dropdown).click
+  find(IvlIapJobIncomeInformationPage.self_employee_frequency).click
   find(IvlIapJobIncomeInformationPage.self_employed_yearly).click
   fill_in IvlIapJobIncomeInformationPage.income_from, with: "11/11/2016"
   fill_in IvlIapJobIncomeInformationPage.income_to, with: "11/11/2017"

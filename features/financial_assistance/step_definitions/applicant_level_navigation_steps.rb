@@ -13,7 +13,7 @@ Given(/^that the user is on the Tax Info page for a given applicant$/) do
 end
 
 When(/^the user clicks My Household section on the left navigation$/) do
-  click_link(l10n('faa.left_nav.my_household'))
+  click_link(l10n('faa.nav.my_household'))
 end
 
 Then(/^the user will navigate to the FAA Household Info page for the corresponding application\.$/) do
@@ -76,6 +76,6 @@ Then(/^the user will navigate to the Other Questions page for the corresponding 
   age_of_applicant = current_applicant.age_of_the_applicant
   if EnrollRegistry.feature_enabled?(:financial_assistance) && FinancialAssistanceRegistry.feature_enabled?(:primary_caregiver_other_question) &&
      age_of_applicant >= 19 && current_applicant.is_applying_coverage
-    expect(page).to have_content(l10n("faa.other_ques.primary_caretaker_question_text", subject: l10n("faa.this_person")))
+    expect(page).to have_content(IvlIapOtherQuestions.primary_caretaker_question_text)
   end
 end

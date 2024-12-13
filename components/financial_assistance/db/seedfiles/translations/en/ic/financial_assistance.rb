@@ -5,6 +5,18 @@
 # rubocop:disable Layout/LineLength
 
 FINANCIAL_ASSISTANCE_TRANSLATIONS = {
+  "en.faa.nav.my_applications" => "My Applications",
+  "en.faa.nav.family_info" => "Family Info",
+  "en.faa.nav.family_relationships" => "Family Relationships",
+  "en.faa.nav.review" => "Review & Submit",
+  "en.faa.nav.my_household" => "My Household",
+  "en.faa.nav.tax_info" => "Tax Info",
+  "en.faa.nav.job_income" => "Job Income",
+  "en.faa.nav.income_adjustments" => "Income Adjustments",
+  "en.faa.nav.other_income" => "Other Income",
+  "en.faa.nav.other_questions" => "Other Questions",
+  "en.faa.nav.health_coverage" => "Health Coverage",
+  "en.faa.nav.applicant_subheader" => "Income & Coverage Info",
   "en.faa.curam_lookup" => "It looks like you've already completed an application for Medicaid and cost savings on DC Health Link.
      Please call DC Health Link at (855) 532-5465 to make updates to that application.
       If you keep going, we'll check to see if you qualify to enroll in a private health insurance plan on DC Health Link, but won't be able to tell you if you qualify for Medicaid or cost savings.",
@@ -318,8 +330,6 @@ FINANCIAL_ASSISTANCE_TRANSLATIONS = {
   "en.faa.transfer_history" => "Transfer History",
   "en.faa.transfer_history_desc" => "Application transfers sent to or from %{site_short_name} related to this application are listed below.",
   "en.faa.no_history_available" => "No history available.",
-  # Left Nav Pane
-  "en.faa.left_nav.my_household" => "My Household",
   # Flash error display
   "en.faa.errors.should_be_answered" => "should be answered",
   "en.faa.errors.inconsistent_relationships_error" => "Some of the relationships you have listed are inconsistent. Review relationships and make sure each pair is correct.",

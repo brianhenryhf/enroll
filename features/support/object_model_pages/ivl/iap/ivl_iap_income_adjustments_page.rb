@@ -4,7 +4,7 @@
 class IvlIapIncomeAdjustmentsPage
 
   def self.income_adjustments_yes_radiobtn
-    '#has_deductions_true' unless EnrollRegistry[:bs4_consumer_flow].enabled?
+    '#has_deductions_true'
   end
 
   def self.income_adjustments_no_radiobtn
@@ -16,7 +16,11 @@ class IvlIapIncomeAdjustmentsPage
   end
 
   def self.continue_btn
-    '.interaction-click-control-continue'
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'a[id="btn-continue"]'
+    else
+      '.interaction-click-control-continue'
+    end
   end
 
   def self.save_and_exit_link
@@ -144,11 +148,15 @@ class IvlIapIncomeAdjustmentsPage
   end
 
   def self.moving_expenses_checkbox
-    'input[class="deduction-checkbox-moving_expenses interaction-choice-control-value-deduction-kind"]'
+    '#deduction_kind[value="moving_expenses"]'
   end
 
   def self.moving_expenses_how_often_dropdown
-    '.new-deduction-form.moving_expenses span.label'
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      '(//select[contains(@id, "frequency")])[9]'
+    else
+      '(//div[contains(@class, "interaction-choice-control-deduction-frequency-kind")])[10]'
+    end
   end
 
   def self.moving_expenses_select_bi_weekly
@@ -160,7 +168,11 @@ class IvlIapIncomeAdjustmentsPage
   end
 
   def self.moving_expenses_select_yearly
-    '.new-deduction-form.moving_expenses li.interaction-choice-control-deduction-frequency-kind-7'
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'option[value="yearly"]'
+    else
+      '.new-deduction-form.moving_expenses li.interaction-choice-control-deduction-frequency-kind-7'
+    end
   end
 
   def self.income_adjustments_save_btn

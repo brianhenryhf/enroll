@@ -1,71 +1,69 @@
 # frozen_string_literal: true
 
 Given(/^all applicants fill all pages except other questions$/) do
-  until find_all('.btn', text: 'ADD INCOME & COVERAGE INFO').empty?
-    find_all('.btn', text: 'ADD INCOME & COVERAGE INFO')[0].click
+  until find_all(IvlIapFamilyInformation.add_income_and_coverage_info_btn).empty?
+    find_all(IvlIapFamilyInformation.add_income_and_coverage_info_btn)[0].click
     sleep 1
-    find('#is_required_to_file_taxes_no').click
-    find('#is_claimed_as_tax_dependent_no').click
-    find("#btn-continue").click
+    find(IvlIapTaxInformationPage.file_taxes_no_radiobtn).click
+    find(IvlIapTaxInformationPage.claimed_as_tax_dependent_no_radiobtn).click
+    find(IvlIapTaxInformationPage.continue_btn).click
     sleep 1
-    find('#has_job_income_true').click
+    find(IvlIapJobIncomeInformationPage.has_job_income_yes_radiobtn).click
     sleep 1
-
-    fill_in 'income[employer_name]', with: 'GloboGym'
-    fill_in 'income[amount]', with: '100'
-    fill_in 'income[start_on]', with: '1/1/2018'
-    find_all("#job_income .incomes-list .interaction-choice-control-income-frequency-kind span.label").first.click
-    find_all("#job_income li.interaction-choice-control-income-frequency-kind-7").first.click
+    fill_in IvlIapJobIncomeInformationPage.employer_name, with: 'GloboGym'
+    fill_in IvlIapJobIncomeInformationPage.income_amount, with: '100'
+    fill_in IvlIapJobIncomeInformationPage.income_from, with: '01/01/2018'
+    find_all(IvlIapJobIncomeInformationPage.frequency).first.click
+    find_all(IvlIapJobIncomeInformationPage.select_yearly).first.click
+    fill_in IvlIapJobIncomeInformationPage.income_employer_phone_number, with: '7898765676'
     unless FinancialAssistanceRegistry[:disable_employer_address_fields].enabled?
-      fill_in 'income[employer_address][address_1]', with: '1 K Street'
-      fill_in 'income[employer_address][city]', with: 'Washington'
-      fill_in 'income[employer_address][zip]', with: '20000'
+      fill_in IvlIapJobIncomeInformationPage.income_employer_address_1, with: '1 K Street'
+      fill_in IvlIapJobIncomeInformationPage.income_employer_city, with: 'Washington'
+      fill_in IvlIapJobIncomeInformationPage.income_employer_zip, with: '20000'
       find(:xpath, '//*[@id="new_income"]/div[1]/div[4]/div[2]/div/div[2]/b').click
       find(:xpath, '//*[@id="new_income"]/div[1]/div[4]/div[2]/div/div[3]/div/ul/li[10]').click
     end
-    fill_in 'income[employer_phone][full_phone_number]', with: '7898765676'
-    click_button('Save')
-    find('#has_self_employment_income_true').click
-    fill_in 'income[amount]', with: '100.00'
-    find_all("#self_employed_incomes .incomes-list .interaction-choice-control-income-frequency-kind span.label").first.click
-    find_all("#self_employed_incomes li.interaction-choice-control-income-frequency-kind-7").first.click
-    fill_in 'income[start_on]', with: '01/01/2018'
-    click_button('Save')
-    find(:xpath, '//*[@id="btn-continue"]').click
+    find(IvlIapJobIncomeInformationPage.income_save_btn).click
+    sleep 1
+    find(IvlIapJobIncomeInformationPage.has_self_employee_income_yes_radiobtn).click
+    fill_in IvlIapJobIncomeInformationPage.self_employee_income_amount, with: '100'
+    fill_in IvlIapJobIncomeInformationPage.self_employee_income_from, with: '01/01/2018'
+    find(IvlIapJobIncomeInformationPage.self_employee_frequency).click
+    find_all(IvlIapJobIncomeInformationPage.self_employed_yearly).first.click
+    find(IvlIapJobIncomeInformationPage.self_self_employee_save_btn).click
+    find(IvlIapJobIncomeInformationPage.continue_btn).click
 
     if FinancialAssistanceRegistry[:unemployment_income].enabled?
-      find('#has_unemployment_income_true').click
+      find(IvlIapOtherIncomePage.has_unemployment_income_yes_radiobtn).click
       sleep 1
-      fill_in 'income[amount]', with: '100'
-      fill_in 'income[start_on]', with: '1/1/2018'
-      find(".new-unemployment-income-form .interaction-choice-control-income-frequency-kind").click
-      find(".new-unemployment-income-form li.interaction-choice-control-income-frequency-kind-7").click
-      click_button('Save')
+      fill_in IvlIapOtherIncomePage.income_amount, with: '100'
+      fill_in IvlIapOtherIncomePage.income_from, with: '01/01/2018'
+      find(IvlIapOtherIncomePage.how_often_dropdown).click
+      find(IvlIapOtherIncomePage.select_yearly).click
+      find(IvlIapOtherIncomePage.unemployment_save_btn).click
     end
-
-    find('#has_other_income_true').click
     sleep 1
-    find(:css, "#other_income_kind[value='interest']").set(true)
-    fill_in 'income[amount]', with: '100'
-    fill_in 'income[start_on]', with: '1/1/2018'
-    find(".new-other-income-form.interest span.label").click
-    find(".new-other-income-form.interest li.interaction-choice-control-income-frequency-kind-7").click
-    click_button('Save')
-    find(:xpath, '//*[@id="btn-continue"]').click
-
-    find('#has_deductions_true').click
-    find(:css, "#deduction_kind[value='moving_expenses']").set(true)
-    fill_in 'deduction[amount]', with: '50'
-    fill_in 'deduction[start_on]', with: '1/1/2018'
-    find(".new-deduction-form.moving_expenses span.label").click
-    find(".new-deduction-form.moving_expenses li.interaction-choice-control-deduction-frequency-kind-7").click
-    click_button('Save')
-    find(:xpath, '//*[@id="btn-continue"]').click
-
-    find('#has_enrolled_health_coverage_false').click
+    find(IvlIapOtherIncomePage.has_other_income_yes_radiobtn).click
+    sleep 1
+    find(:css, IvlIapOtherIncomePage.interest_checkbox).set(true)
+    fill_in IvlIapOtherIncomePage.income_amount, with: '100'
+    fill_in IvlIapOtherIncomePage.income_from, with: '01/01/2018'
+    find(IvlIapOtherIncomePage.interest_how_often_dropdown).click
+    find(IvlIapOtherIncomePage.interest_select_yearly).click
+    find(IvlIapOtherIncomePage.has_other_income_save_btn).click
+    find(IvlIapOtherIncomePage.continue_btn).click
+    find(IvlIapIncomeAdjustmentsPage.income_adjustments_yes_radiobtn).click
+    find(:css, IvlIapIncomeAdjustmentsPage.moving_expenses_checkbox).set(true)
+    fill_in IvlIapIncomeAdjustmentsPage.amount, with: '50'
+    fill_in IvlIapIncomeAdjustmentsPage.from, with: '01/01/2018'
+    sleep 5
+    find(:xpath, IvlIapIncomeAdjustmentsPage.moving_expenses_how_often_dropdown, :wait => 5).click
+    find(IvlIapIncomeAdjustmentsPage.moving_expenses_select_yearly).click
+    find(IvlIapIncomeAdjustmentsPage.income_adjustments_save_btn).click
+    find(IvlIapIncomeAdjustmentsPage.continue_btn).click
+    find(IvlIapHealthCoveragePage.has_enrolled_health_coverage_no_radiobtn).click
     find(IvlIapHealthCoveragePage.has_eligible_health_coverage_no_radiobtn).click
-
-    find(:xpath, '//*[@id="btn-continue"]').click
+    find(IvlIapHealthCoveragePage.continue_btn).click
   end
 end
 
@@ -197,7 +195,7 @@ And(/^the user fills out the rest of the other questions form and submits it$/) 
   find("#has_daily_living_no").click
   find("#need_help_paying_bills_no").click
   find("#radio_physically_disabled_no").click
-  choose('is_former_foster_care_no')
+  find(IvlIapOtherQuestions.foster_care_no_radiobtn).click
   choose('is_student_no')
   choose('is_self_attested_blind_no')
   choose('is_veteran_or_active_military_no')
@@ -211,7 +209,7 @@ And(/^the user fills out the required other questions and submits it$/) do
   choose('is_ssn_applied_no')
   choose('is_pregnant_no')
   choose('is_post_partum_period_no')
-  choose('is_former_foster_care_no')
+  find(IvlIapOtherQuestions.foster_care_no_radiobtn).click
   choose('is_student_no')
   choose('is_veteran_or_active_military_no')
   choose("is_resident_post_092296_no")
@@ -226,7 +224,7 @@ And(/^the user fills out the rest of form with medicaid during pregnancy as yes 
   find("#has_daily_living_no").click
   find("#need_help_paying_bills_no").click
   find("#radio_physically_disabled_no").click
-  choose('is_former_foster_care_no')
+  find(IvlIapOtherQuestions.foster_care_no_radiobtn).click
   choose('is_student_no')
   choose('is_self_attested_blind_no')
   choose('is_veteran_or_active_military_no')
@@ -288,23 +286,39 @@ Then(/^type of school question should display$/) do
 end
 
 Then(/^the has this person ever been in foster care question should display$/) do
-  expect(page).to have_content('Was this person in foster care at age 18 or older?*')
+  expect(page).to have_content(IvlIapOtherQuestions.foster_care_question_text)
 end
 
 Given(/^the user answered yes to the has this person ever been in foster care question$/) do
-  choose('is_former_foster_care_yes')
+  find(IvlIapOtherQuestions.foster_care_yes_radiobtn).click
+end
+
+And(/^the user answered no to the has this person ever been in foster care question$/) do
+  find(IvlIapOtherQuestions.foster_care_no_radiobtn).click
 end
 
 Then(/^the where was this person in foster care question should display$/) do
-  expect(page).to have_content('Where was this person in foster care?')
+  expect(page).to have_content(IvlIapOtherQuestions.foster_care_where_text)
+end
+
+Then(/^the where was this person in foster care question should not display$/) do
+  expect(page).to_not have_content(IvlIapOtherQuestions.foster_care_where_text)
 end
 
 Then(/^the how old was this person when they left foster care question should display$/) do
-  expect(page).to have_content('How old was this person when they left foster care?')
+  expect(page).to have_content(IvlIapOtherQuestions.foster_care_left_when_text)
+end
+
+Then(/^the how old was this person when they left foster care question should not display$/) do
+  expect(page).to_not have_content(IvlIapOtherQuestions.foster_care_left_when_text)
 end
 
 Then(/^the was this person enrolled in medicare when they left foster care should display$/) do
-  expect(page).to have_content('Was this person enrolled in Medicaid when they left foster care?')
+  expect(page).to have_content(IvlIapOtherQuestions.foster_care_enrolled_medicaid_text)
+end
+
+Then(/^the was this person enrolled in medicare when they left foster care should not display$/) do
+  expect(page).to_not have_content(IvlIapOtherQuestions.foster_care_enrolled_medicaid_text)
 end
 
 And(/^the user answers yes to having an eligible immigration status$/) do

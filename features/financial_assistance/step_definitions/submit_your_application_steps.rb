@@ -85,7 +85,7 @@ Given(/^all applicants are in Info Completed state%/) do
 
     find(IvlIapHealthCoveragePage.has_enrolled_health_coverage_no_radiobtn).click
     find(IvlIapHealthCoveragePage.has_eligible_health_coverage_no_radiobtn).click
-    find(IvlIapHealthCoveragePage.continue).click
+    find(IvlIapHealthCoveragePage.continue_btn).click
     find(IvlIapOtherQuestions.is_pregnant_no_radiobtn).click
     find(IvlIapOtherQuestions.is_post_partum_period_no_radiobtn).click
     find(IvlIapOtherQuestions.person_blind_no_radiobtn).click
@@ -107,20 +107,22 @@ Given(/^all applicants are in Info Completed state with all types of income$/) d
     fill_in IvlIapJobIncomeInformationPage.employer_name, with: 'GloboGym'
     fill_in IvlIapJobIncomeInformationPage.income_amount, with: '100'
     fill_in IvlIapJobIncomeInformationPage.income_from, with: '1/1/2018'
-    find(IvlIapJobIncomeInformationPage.income_how_often_dropdown).click
+    find_all(IvlIapJobIncomeInformationPage.frequency).first.click
     find(IvlIapJobIncomeInformationPage.select_yearly).click
     sleep 5
-    fill_in IvlIapJobIncomeInformationPage.income_employer_address_1, with: '1 K Street'
-    fill_in IvlIapJobIncomeInformationPage.income_employer_city, with: 'Washington'
-    fill_in IvlIapJobIncomeInformationPage.income_employer_zip, with: '20000'
-    find(IvlIapJobIncomeInformationPage.income_employer_state_dropdown).click
-    find(IvlIapJobIncomeInformationPage.select_dc).click
+    unless FinancialAssistanceRegistry[:disable_employer_address_fields].enabled?
+      fill_in IvlIapJobIncomeInformationPage.income_employer_address_1, with: '1 K Street'
+      fill_in IvlIapJobIncomeInformationPage.income_employer_city, with: 'Washington'
+      fill_in IvlIapJobIncomeInformationPage.income_employer_zip, with: '20000'
+      find(IvlIapJobIncomeInformationPage.income_employer_state_dropdown).click
+      find(IvlIapJobIncomeInformationPage.select_dc).click
+    end
     fill_in IvlIapJobIncomeInformationPage.income_employer_phone_number, with: '7898765676'
     find(IvlIapJobIncomeInformationPage.income_save_btn).click
     find(IvlIapJobIncomeInformationPage.has_self_employee_income_yes_radiobtn).click
 
     fill_in IvlIapJobIncomeInformationPage.self_employee_income_amount, with: '100.00'
-    find(IvlIapJobIncomeInformationPage.self_employee_how_often_dropdown).click
+    find(IvlIapJobIncomeInformationPage.self_employee_frequency).click
     find(IvlIapJobIncomeInformationPage.self_employed_yearly).click
     fill_in IvlIapJobIncomeInformationPage.self_employee_income_from, with: '01/01/2018'
     find(IvlIapJobIncomeInformationPage.self_self_employee_save_btn).click
@@ -154,7 +156,8 @@ Given(/^all applicants are in Info Completed state with all types of income$/) d
     find(:css, "#deduction_kind[value='moving_expenses']").set(true)
     fill_in IvlIapIncomeAdjustmentsPage.amount, with: '50'
     fill_in IvlIapIncomeAdjustmentsPage.from, with: '1/1/2018'
-    find(IvlIapIncomeAdjustmentsPage.moving_expenses_how_often_dropdown).click
+    sleep 1
+    find(:xpath, IvlIapIncomeAdjustmentsPage.moving_expenses_how_often_dropdown, :visible => false).click
     find(IvlIapIncomeAdjustmentsPage.moving_expenses_select_yearly).click
 
     within('.new-deduction-form.moving_expenses') do
@@ -164,7 +167,7 @@ Given(/^all applicants are in Info Completed state with all types of income$/) d
     find(IvlIapIncomeAdjustmentsPage.continue_btn).click
     find(IvlIapHealthCoveragePage.has_enrolled_health_coverage_no_radiobtn).click
     find(IvlIapHealthCoveragePage.has_eligible_health_coverage_no_radiobtn).click
-    find(IvlIapHealthCoveragePage.continue).click
+    find(IvlIapHealthCoveragePage.continue_btn).click
     find(IvlIapOtherQuestions.is_pregnant_no_radiobtn).click
     find(IvlIapOtherQuestions.is_post_partum_period_no_radiobtn).click
     find(IvlIapOtherQuestions.person_blind_no_radiobtn).click

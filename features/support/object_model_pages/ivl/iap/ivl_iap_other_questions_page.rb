@@ -3,6 +3,14 @@
 #financial_assistance/applications/consumer_role_id/applicants/consumer_role_id/other_questions
 class IvlIapOtherQuestions
 
+  def self.other_questions_link
+    'Other Questions'
+  end
+
+  def self.other_questions_btn
+    '.interaction-click-control-other-questions'
+  end
+
   def self.is_pregnant_no_radiobtn
     if EnrollRegistry[:bs4_consumer_flow].enabled?
       '.interaction-choice-control-value-is-pregnant-no'
@@ -141,6 +149,34 @@ class IvlIapOtherQuestions
 
   def self.not_sure_physically_disabled_link
     'a[data-target="#is_physically_disabled"]'
+  end
+
+  def self.primary_caretaker_question_text
+    'the main person taking care of any children age 18 or younger?'
+  end
+
+  def self.foster_care_question_text
+    'in foster care at age 18 or older?'
+  end
+
+  def self.foster_care_yes_radiobtn
+    'input[id="is_former_foster_care_yes"]'
+  end
+
+  def self.foster_care_no_radiobtn
+    'input[id="is_former_foster_care_no"]'
+  end
+
+  def self.foster_care_where_text
+    'in foster care?'
+  end
+
+  def self.foster_care_left_when_text
+    'when they left foster care?'
+  end
+
+  def self.foster_care_enrolled_medicaid_text
+    'enrolled in Medicaid when they left foster care?'
   end
 
   def self.continue_btn

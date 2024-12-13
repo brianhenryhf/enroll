@@ -4,11 +4,11 @@
 class IvlIapJobIncomeInformationPage
 
   def self.has_job_income_yes_radiobtn
-    '#has_job_income_true' unless EnrollRegistry[:bs4_consumer_flow].enabled?
+    '#has_job_income_true'
   end
 
   def self.has_job_income_no_radiobtn
-    '.interaction-choice-control-value-has-job-income-false' unless EnrollRegistry[:bs4_consumer_flow].enabled?
+    '.interaction-choice-control-value-has-job-income-false'
   end
 
   def self.not_sure_has_job_income_link
@@ -20,11 +20,19 @@ class IvlIapJobIncomeInformationPage
   end
 
   def self.income_amount
-    'income_amount'
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'income[amount]'
+    else
+      'income_amount'
+    end
   end
 
-  def self.income_how_often_dropdown
-    'div[class="fa-frequency-kind"] span.label'
+  def self.frequency
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'select[class*="frequency"]'
+    else
+      '#job_income .incomes-list .interaction-choice-control-income-frequency-kind span.label'
+    end
   end
 
   def self.select_bi_weekly
@@ -32,7 +40,11 @@ class IvlIapJobIncomeInformationPage
   end
 
   def self.select_yearly
-    '.fa-frequency-kind li[data-index="7"]'
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'option[value="yearly"]'
+    else
+      '#job_income li.interaction-choice-control-income-frequency-kind-7'
+    end
   end
 
   def self.income_from
@@ -100,23 +112,31 @@ class IvlIapJobIncomeInformationPage
   end
 
   def self.has_self_employee_income_yes_radiobtn
-    '#has_self_employment_income_true' unless EnrollRegistry[:bs4_consumer_flow].enabled?
+    '#has_self_employment_income_true'
   end
 
   def self.has_self_employee_income_no_radiobtn
-    '#has_self_employment_income_false' unless EnrollRegistry[:bs4_consumer_flow].enabled?
+    '#has_self_employment_income_false'
   end
 
   def self.self_employee_income_amount
-    'income_amount'
+    'income[amount]'
   end
 
-  def self.self_employee_how_often_dropdown
-    '[data-cuke="self-employed-income-how-often-dropdown"]'
+  def self.self_employee_frequency
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'select[name="income[frequency_kind]"]'
+    else
+      '#self_employed_incomes .incomes-list .interaction-choice-control-income-frequency-kind span.label'
+    end
   end
 
   def self.self_employed_yearly
-    '#self_employed_incomes li.interaction-choice-control-income-frequency-kind-7'
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'option[value="yearly"]'
+    else
+      '#self_employed_incomes li.interaction-choice-control-income-frequency-kind-7'
+    end
   end
 
   def self.self_employee_income_from
@@ -164,7 +184,11 @@ class IvlIapJobIncomeInformationPage
   end
 
   def self.continue_btn
-    '.interaction-click-control-continue' unless EnrollRegistry[:bs4_consumer_flow].enabled?
+    if EnrollRegistry[:bs4_consumer_flow].enabled?
+      'a[id="btn-continue"'
+    else
+      '.interaction-click-control-continue'
+    end
   end
 
   def self.start_date_warning
