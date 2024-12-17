@@ -81,3 +81,100 @@ Then(/^Admin should land on ridp document upload page$/) do
   expect(page).to have_content('Identity')
 end
 
+When(/^admin navigates to .+ user who has (.*) to American Indian or Alaska Native tribe membership$/) do |attest|
+  @person = FactoryBot.create(:person, :with_consumer_role, :with_active_consumer_role, first_name: "Patrick")
+  @family = FactoryBot.create(:family, :with_primary_family_member, person: @person)
+  FactoryBot.create(:user, person: @person)
+
+  case attest
+  when 'attested'
+    @person.update_attributes!(tribal_id: '123456789', tribal_name: 'Navajo', tribal_state: 'ME')
+    @person.verification_types.create!(type_name: 'American Indian Status', validation_status: 'verified')
+  when 'not attested'
+    @person.update_attributes!(tribal_id: nil)
+  else
+    raise 'Step only accepts "attested" or "not_attested" for attestation'
+  end
+
+  visit family_index_dt_exchanges_hbx_profiles_path
+  find('[class^="interaction-click-control-patrick-smith"]').click
+end
+
+And(/^.+ navigates to the user's (.*) page$/) do |tab|
+  sleep 2
+  case tab
+  when 'documents'
+    find('.interaction-click-control-verifications').click
+  when 'applications'
+    if ENV['CLIENT'] == 'me'
+      find('[class$="applications"]').click
+    else
+      find('.interaction-click-control-cost-savings').click
+    end
+  when 'families'
+    find('.interaction-click-control-my-household').click
+  else
+    raise 'Step only accepts navigation tab names as tab'
+  end
+end
+
+And(/^.+ updates the (.*)'s American Indian or Alaska Native attestation$/) do |user|
+  case user
+  when 'user'
+    find('.interaction-click-control-edit-member').click
+    find('#indian_tribe_member_yes').click
+    find('#tribal-id').set('123456789')
+    find('#save_personal').click
+  when 'dependent'
+    find('#indian_tribe_member_yes').click
+    find('#tribal-id').set('123456789')
+    find('#confirm-dependent').click
+  else
+    raise 'Step only accepts user or dependent'
+  end
+end
+
+And(/^.+ adds a dependent to the user's family$/) do
+  find('#household_info_add_member').click
+  find('#applicant_first_name').set('Cathy')
+  find('#applicant_last_name').set('Smith3')
+  find('#applicant_dob').set('10/10/1984')
+  find('#applicant_gender').set('Female')
+  options_gender = find('#applicant_gender').all('option')
+  options_gender[2].select_option
+  find('#dependent_ssn').set('123456543')
+  options_relationship = find('#applicant_relationship').all('option')
+  options_relationship[1].select_option
+  find('#us_citizen_true').click
+  find('#naturalized_citizen_false').click
+  find('#is_incarcerated_false').click
+end
+
+And(/^admin accesses the user's financial assistance application$/) do
+  FactoryBot.create(:financial_assistance_application, family_id: @family.id, aasm_state: 'determined')
+  FactoryBot.create(
+    :financial_assistance_applicant,
+    application: application,
+    is_primary_applicant: true,
+    family_member_id: @person.id,
+    person_hbx_id: @person.hbx_id
+  )
+  first('.interaction-click-control-actions').click
+  find('.interaction-click-control-copy-to-new-application').click
+end
+
+And(/^.+ clicks on the Actions dropdown for the American Indian Status$/) do
+  first('select[id^="v-action"][id*="American-Indian-Status"]').click
+end
+
+Then(/^.+ should see only View History action available$/) do
+  select_element = first('select[id^="v-action"][id*="American-Indian-Status"]')
+  expect(select_element).to have_selector('option', count: 2)
+  options = select_element.all('option')
+  expect(options[1].value).to eq('View History')
+end
+
+And(/^.+ returns to the applications page$/) do
+  sleep 2
+  find('.interaction-click-control-view-my-applications').click
+end

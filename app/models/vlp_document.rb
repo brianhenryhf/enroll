@@ -31,7 +31,7 @@ class VlpDocument < Document
   #list of the documents user can provide to verify Immigration status
   VLP_DOCUMENT_KINDS = EnrollRegistry[:vlp_documents].setting(:vlp_document_kind_options).item
 
-    VLP_DOCUMENTS_VERIF_STATUS = ['not submitted', 'downloaded', 'verified', 'rejected']
+  VLP_DOCUMENTS_VERIF_STATUS = ['not submitted', 'downloaded', 'verified', 'rejected'].freeze
 
   COUNTRIES_LIST = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
                     "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh",
@@ -60,8 +60,14 @@ class VlpDocument < Document
                     "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Viet nam",
                     "Yemen", "Zambia","Zimbabwe"].freeze
 
+  VERIFY = 'Verify'.freeze
+  REJECT = 'Reject'.freeze
+  VIEW_HISTORY = 'View History'.freeze
+  CALL_HUB = 'Call HUB'.freeze
+  EXTEND = 'Extend'.freeze
+
   # admin action list for verification process, dropdown for each verification type
-  ADMIN_VERIFICATION_ACTIONS = ["Verify", "Reject", "View History", "Call HUB", "Extend"]
+  ADMIN_VERIFICATION_ACTIONS = [VERIFY, REJECT, VIEW_HISTORY, CALL_HUB, EXTEND].freeze
 
   # reasons admin can provide when verifying type
   VERIFICATION_REASONS = EnrollRegistry[:verification_reasons].item
