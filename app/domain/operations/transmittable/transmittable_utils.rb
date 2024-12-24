@@ -54,6 +54,7 @@ module Operations
       #   :job The job to create a transaction for
       # @return [Dry::Monads::Result]
       def create_request_transaction(transaction_params, job)
+        transmission = transaction_params[:transmission]
         result = ::Operations::Transmittable::CreateTransaction.new.call(transaction_params)
         return result if result.success?
 

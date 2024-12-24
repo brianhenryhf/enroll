@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe ::Operations::HbxEnrollments::BeginCoverage, dbclean: :after_each do
+  include Dry::Monads[:do, :result]
 
   let(:family)      { FactoryBot.create(:family, :with_primary_family_member) }
   let(:effective_on) { TimeKeeper.date_of_record.beginning_of_year }
@@ -25,7 +26,7 @@ RSpec.describe ::Operations::HbxEnrollments::BeginCoverage, dbclean: :after_each
   let(:result)              { operation_instance.call(params) }
 
   let(:logger) do
-    File.read("#{Rails.root}/log/begin_coverage_#{TimeKeeper.date_of_record.strftime('%Y_%m_%d')}.log")
+    File.read("#{Rails.root}/log/hbx_enrollments_begin_coverage_#{TimeKeeper.date_of_record.strftime('%Y_%m_%d')}.log")
   end
 
   let(:job) do
@@ -41,52 +42,18 @@ RSpec.describe ::Operations::HbxEnrollments::BeginCoverage, dbclean: :after_each
   end
 
   let(:request_transmission) do
-    ::Operations::Transmittable::CreateTransmission.new.call(
-      {
-        job: job,
-        key: :hbx_enrollment_begin_coverage_request,
-        title: "Transmission request to begin coverage enrollment with hbx id: #{enrollment.hbx_id}.",
-        description: "Transmission request to begin coverage enrollment with hbx id: #{enrollment.hbx_id}.",
-        publish_on: Date.today,
-        started_at: DateTime.now,
-        event: 'initial',
-        state_key: :initial,
-        correlation_id: enrollment.hbx_id
-      }
-    ).success
+    operation_instance.request_transmission
   end
 
   let(:request_transaction) do
-    ::Operations::Transmittable::CreateTransaction.new.call(
-      {
-        transmission: request_transmission,
-        subject: enrollment,
-        key: :hbx_enrollment_begin_coverage_request,
-        title: "Enrollment begin coverage request transaction for #{enrollment.hbx_id}.",
-        description: "Transaction request to begin coverage of enrollment with hbx id: #{enrollment.hbx_id}.",
-        publish_on: Date.today,
-        started_at: DateTime.now,
-        event: 'initial',
-        state_key: :initial,
-        correlation_id: enrollment.hbx_id
-      }
-    ).success
+    operation_instance.request_transaction
   end
 
   let(:params) do
     {
       enrollment_gid: enrollment.to_global_id.uri.to_s,
-      transmittable_identifiers: {
-        job_gid: job.to_global_id.uri.to_s,
-        transmission_gid: request_transmission.to_global_id.uri.to_s,
-        transaction_gid: request_transaction.to_global_id.uri.to_s,
-        subject_gid: enrollment.to_global_id.uri.to_s
-      }
+      job_gid: job.to_global_id.uri.to_s
     }
-  end
-
-  before :each do
-    result
   end
 
   describe 'with invalid params' do
@@ -98,25 +65,8 @@ RSpec.describe ::Operations::HbxEnrollments::BeginCoverage, dbclean: :after_each
       end
     end
 
-    context 'without transmittable_identifiers' do
-      let(:params) { { enrollment_gid: enrollment.to_global_id.uri.to_s } }
-
-      it 'returns failure monad' do
-        expect(result.failure).to eq("Invalid transmittable_identifiers in params: #{params}. Expected a hash.")
-      end
-    end
-
     context 'without enrollment_gid' do
-      let(:params) do
-        {
-          transmittable_identifiers: {
-            job_gid: job.to_global_id.uri.to_s,
-            transmission_gid: request_transmission.to_global_id.uri.to_s,
-            transaction_gid: request_transaction.to_global_id.uri.to_s,
-            subject_gid: enrollment.to_global_id.uri.to_s
-          }
-        }
-      end
+      let(:params) { {} }
 
       it 'returns failure monad' do
         expect(result.failure).to eq("Missing enrollment_gid in params: #{params}.")
@@ -124,59 +74,10 @@ RSpec.describe ::Operations::HbxEnrollments::BeginCoverage, dbclean: :after_each
     end
 
     context 'without job_gid' do
-      let(:params) { { enrollment_gid: enrollment.to_global_id.uri.to_s, transmittable_identifiers: {} } }
+      let(:params) { { enrollment_gid: enrollment.to_global_id.uri.to_s } }
 
       it 'returns failure monad' do
-        expect(result.failure).to eq("Missing job_gid in transmittable_identifiers of params: #{params}.")
-      end
-    end
-
-    context 'without transmission_gid' do
-      let(:params) do
-        {
-          enrollment_gid: enrollment.to_global_id.uri.to_s,
-          transmittable_identifiers: {
-            job_gid: job.to_global_id.uri.to_s,
-            transaction_gid: request_transaction.to_global_id.uri.to_s
-          }
-        }
-      end
-
-      it 'returns failure monad' do
-        expect(result.failure).to eq("Missing transmission_gid in transmittable_identifiers of params: #{params}.")
-      end
-    end
-
-    context 'without transaction_gid' do
-      let(:params) do
-        {
-          enrollment_gid: enrollment.to_global_id.uri.to_s,
-          transmittable_identifiers: {
-            job_gid: job.to_global_id.uri.to_s,
-            transmission_gid: request_transmission.to_global_id.uri.to_s
-          }
-        }
-      end
-
-      it 'returns failure monad' do
-        expect(result.failure).to eq("Missing transaction_gid in transmittable_identifiers of params: #{params}.")
-      end
-    end
-
-    context 'without subject_gid' do
-      let(:params) do
-        {
-          enrollment_gid: enrollment.to_global_id.uri.to_s,
-          transmittable_identifiers: {
-            job_gid: job.to_global_id.uri.to_s,
-            transmission_gid: request_transmission.to_global_id.uri.to_s,
-            transaction_gid: request_transaction.to_global_id.uri.to_s
-          }
-        }
-      end
-
-      it 'returns failure monad' do
-        expect(result.failure).to eq("Missing subject_gid in transmittable_identifiers of params: #{params}.")
+        expect(result.failure).to eq("Missing job_gid in params: #{params}.")
       end
     end
 
@@ -184,12 +85,7 @@ RSpec.describe ::Operations::HbxEnrollments::BeginCoverage, dbclean: :after_each
       let(:params) do
         {
           enrollment_gid: 'invalid-enrollment-gid',
-          transmittable_identifiers: {
-            job_gid: job.to_global_id.uri.to_s,
-            transmission_gid: request_transmission.to_global_id.uri.to_s,
-            transaction_gid: request_transaction.to_global_id.uri.to_s,
-            subject_gid: enrollment.to_global_id.uri.to_s
-          }
+          job_gid: job.to_global_id.uri.to_s
         }
       end
 
@@ -207,6 +103,10 @@ RSpec.describe ::Operations::HbxEnrollments::BeginCoverage, dbclean: :after_each
     end
 
     context 'with invalid aasm_state' do
+      before :each do
+        result
+      end
+
       let(:aasm_state) do
         ['actively_renewing', 'coverage_canceled', 'coverage_enrolled', 'coverage_expired', 'coverage_terminated', 'coverage_termination_pending', 'inactive', 'renewing_contingent_enrolled', 'shopping', 'void'].sample
       end
@@ -249,53 +149,171 @@ RSpec.describe ::Operations::HbxEnrollments::BeginCoverage, dbclean: :after_each
         ).to eq(:enrollment_begin_coverage)
       end
     end
+
+    context 'when transmission creation fails' do
+      let(:job_process_status) { job.process_status }
+      let(:transmission_process_status) { request_transmission.process_status }
+
+      before :each do
+        allow(
+          ::Operations::Transmittable::CreateTransmission
+        ).to receive(:new).and_return(
+          double('CreateTransmission', call: Failure('Failed to create transmission due to invalid params.'))
+        )
+
+        result
+      end
+
+      it 'returns a failure monad' do
+        expect(result.failure).to eq('Failed to create transmission due to invalid params.')
+      end
+
+      it 'does not create transmission' do
+        expect(job.transmissions.count).to eq(0)
+        expect(operation_instance.request_transmission).to be_nil
+        expect(Transmittable::Transmission.count).to eq(0)
+      end
+
+      it 'creates an error associated to the job' do
+        expect(job.transmittable_errors.count).to eq(1)
+        expect(job.transmittable_errors.first.key).to eq(:create_request_transmission)
+        expect(Transmittable::Error.all.count).to eq(1)
+        expect(Transmittable::Error.first.errorable).to eq(job)
+      end
+
+      it 'updates the process status and creates new process state associated to the job' do
+        expect(job_process_status.reload.latest_state).to eq(:failed)
+        expect(job_process_status.process_states.count).to eq(2)
+        expect(job_process_status.process_states.last.state_key).to eq(:failed)
+      end
+    end
+
+    context 'when transaction creation fails' do
+      let(:job_process_status) { job.process_status }
+      let(:transmission_process_status) { request_transmission.process_status }
+
+      before :each do
+        allow(
+          ::Operations::Transmittable::CreateTransaction
+        ).to receive(:new).and_return(
+          double('CreateTransaction', call: Failure('Failed to create transaction due to invalid params.'))
+        )
+
+        result
+      end
+
+      it 'returns a failure monad' do
+        expect(result.failure).to eq('Failed to create transaction due to invalid params.')
+      end
+
+      it 'does not create transaction' do
+        expect(request_transmission.transactions.count).to eq(0)
+        expect(operation_instance.request_transaction).to be_nil
+        expect(Transmittable::Transaction.count).to eq(0)
+      end
+
+      it 'creates an error associated to the job and transmission' do
+        expect(request_transmission.transmittable_errors.count).to eq(1)
+        expect(request_transmission.transmittable_errors.first.key).to eq(:create_request_transaction)
+        expect(job.transmittable_errors.count).to eq(1)
+        expect(job.transmittable_errors.first.key).to eq(:create_request_transaction)
+        expect(Transmittable::Error.all.count).to eq(2)
+        expect(Transmittable::Error.all.map(&:errorable).sort).to eq([request_transmission, job].sort)
+      end
+
+      it 'updates the process status and creates new process state associated to the job' do
+        expect(job_process_status.reload.latest_state).to eq(:failed)
+        expect(job_process_status.process_states.count).to eq(2)
+        expect(job_process_status.process_states.last.state_key).to eq(:failed)
+        expect(transmission_process_status.latest_state).to eq(:failed)
+        expect(transmission_process_status.process_states.count).to eq(2)
+        expect(transmission_process_status.process_states.last.state_key).to eq(:failed)
+      end
+    end
   end
 
   describe 'with valid params' do
+    before :each do
+      result
+    end
+
     it 'returns success message' do
       msg = "Successfully began coverage for enrollment hbx id #{enrollment.hbx_id}."
       expect(result.success).to eq(msg)
       expect(logger).to include(msg)
     end
 
-    it 'creates transmission with correct association' do
-      expect(operation_instance.response_transmission).to be_a(::Transmittable::Transmission)
-      expect(operation_instance.response_transmission.job).to eq(job)
+    context 'request transmission and transaction' do
+      it 'creates transmission with correct association' do
+        expect(request_transmission).to be_a(::Transmittable::Transmission)
+        expect(request_transmission.transmission_id).to eq(enrollment.hbx_id)
+        expect(request_transmission.job).to eq(job)
+      end
+
+      it 'associates newly created transmission to job' do
+        expect(job.transmissions.first).to eq(request_transmission)
+      end
+
+      it 'creates transaction with correct associations' do
+        expect(request_transaction).to be_a(::Transmittable::Transaction)
+        expect(request_transaction.transaction_id).to eq(enrollment.hbx_id)
+        expect(request_transaction.transactable).to eq(enrollment)
+      end
+
+      it 'creates join table record between transmission and transaction' do
+        expect(
+          ::Transmittable::TransactionsTransmissions.where(
+            transaction_id: request_transaction.id,
+            transmission_id: request_transmission.id
+          ).count
+        ).to eq(1)
+      end
+
+      it 'associates newly created transaction to enrollment' do
+        expect(enrollment.transactions.first).to eq(request_transaction)
+      end
     end
 
-    it 'associates newly created response transmission to job' do
-      expect(job.transmissions.count).to eq(2)
-      expect(job.transmissions.pluck(:key)).to include(:hbx_enrollment_begin_coverage_response)
-    end
+    context 'response transmission and transaction' do
+      it 'creates transmission with correct association' do
+        expect(operation_instance.response_transmission).to be_a(::Transmittable::Transmission)
+        expect(operation_instance.response_transmission.job).to eq(job)
+      end
 
-    it 'creates response transaction with correct associations' do
-      expect(operation_instance.response_transaction).to be_a(::Transmittable::Transaction)
-      expect(operation_instance.response_transaction.transactable).to eq(enrollment)
-    end
+      it 'associates newly created response transmission to job' do
+        expect(job.transmissions.count).to eq(2)
+        expect(job.transmissions.pluck(:key)).to include(:hbx_enrollment_begin_coverage_response)
+      end
 
-    it 'creates join table record between transmission and transaction' do
-      expect(operation_instance.response_transaction.transmissions).to be_one
-      expect(
-        operation_instance.response_transaction.transmissions.first
-      ).to eq(operation_instance.response_transmission)
-    end
+      it 'creates response transaction with correct associations' do
+        expect(operation_instance.response_transaction).to be_a(::Transmittable::Transaction)
+        expect(operation_instance.response_transaction.transactable).to eq(enrollment)
+      end
 
-    it 'associates both request/response transmission and transaction to enrollment' do
-      request_transmission_transmission_id = operation_instance.request_transmission.transmission_id
-      response_transmission_transmission_id = operation_instance.response_transmission.transmission_id
-      request_transaction_transaction_id = operation_instance.request_transaction.transaction_id
-      response_transaction_transaction_id = operation_instance.response_transaction.transaction_id
-      expect(request_transmission_transmission_id).to eq(response_transmission_transmission_id)
-      expect(request_transaction_transaction_id).to eq(response_transaction_transaction_id)
-      expect(request_transmission_transmission_id).to eq(enrollment_hbx_id)
-      expect(response_transmission_transmission_id).to eq(enrollment_hbx_id)
-      expect(request_transaction_transaction_id).to eq(enrollment_hbx_id)
-      expect(response_transaction_transaction_id).to eq(enrollment_hbx_id)
+      it 'creates join table record between transmission and transaction' do
+        expect(operation_instance.response_transaction.transmissions).to be_one
+        expect(
+          operation_instance.response_transaction.transmissions.first
+        ).to eq(operation_instance.response_transmission)
+      end
+
+      it 'associates both request/response transmission and transaction to enrollment' do
+        request_transmission_transmission_id = operation_instance.request_transmission.transmission_id
+        response_transmission_transmission_id = operation_instance.response_transmission.transmission_id
+        request_transaction_transaction_id = operation_instance.request_transaction.transaction_id
+        response_transaction_transaction_id = operation_instance.response_transaction.transaction_id
+        expect(request_transmission_transmission_id).to eq(response_transmission_transmission_id)
+        expect(request_transaction_transaction_id).to eq(response_transaction_transaction_id)
+        expect(request_transmission_transmission_id).to eq(enrollment_hbx_id)
+        expect(response_transmission_transmission_id).to eq(enrollment_hbx_id)
+        expect(request_transaction_transaction_id).to eq(enrollment_hbx_id)
+        expect(response_transaction_transaction_id).to eq(enrollment_hbx_id)
+      end
     end
   end
 
   after :all do
-    file_path = "#{Rails.root}/log/begin_coverage_#{TimeKeeper.date_of_record.strftime('%Y_%m_%d')}.log"
+    file_path = "#{Rails.root}/log/hbx_enrollments_begin_coverage_#{TimeKeeper.date_of_record.strftime('%Y_%m_%d')}.log"
     File.delete(file_path) if File.file?(file_path)
   end
 end

@@ -84,7 +84,7 @@ module Operations
       end
 
       def enrollments_to_expire_query(query_criteria)
-        enrollments_to_expire = HbxEnrollment.where(query_criteria)
+        enrollments_to_expire = HbxEnrollment.where(query_criteria).only(:aasm_state, :effective_on, :kind, :_id, :hbx_id)
 
         if enrollments_to_expire.present?
           Success(enrollments_to_expire)

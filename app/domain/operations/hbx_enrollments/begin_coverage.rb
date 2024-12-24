@@ -14,31 +14,26 @@ module Operations
       # @return [Dry::Monads::Result]
       # @example params: {
       #   enrollment_gid: 'gid://enroll/HbxEnrollment/65739e355b4dc03a97f26c3b',
-      #   transmittable_identifiers: {
-      #    job_gid: 'gid://enroll/Transmittable::Job/65739e355b4dc03a97f26c3b',
-      #    transmission_gid: 'gid://enroll/Transmittable::Transmission/65739e355b4dc03a97f26c3b',
-      #    transaction_gid: 'gid://enroll/Transmittable::Transaction/65739e355b4dc03a97f26c3b',
-      #    subject_gid: 'gid://enroll/HbxEnrollment/65739e355b4dc03a97f26c3b'
-      #   }
+      #   job_gid: 'gid://enroll/Transmittable::Job/65739e355b4dc03a97f26c3b'
       # }
       def call(params)
-        _params                   = yield validate(params)
-        @hbx_enrollment           = yield find_enrollment
-        @job                      = yield find_job_by_global_id(@job_gid)
-        @request_transmission     = yield find_transmission_by_global_id(@request_transmission_gid)
-        _updated_result           = yield update_status("Transmittable::Transmission found with given global ID: #{@request_transmission_gid}",
-                                                        :succeeded,
-                                                        { transmission: @request_transmission })
-        @request_transaction      = yield find_transaction_by_global_id(@request_transaction_gid)
-        _updated_result           = yield update_status("Transmittable::Transaction found with given global ID: #{@request_transaction_gid}",
-                                                        :succeeded,
-                                                        { transaction: @request_transaction })
-        transmission_params       = yield construct_response_transmission_params
-        @response_transmission    = yield create_response_transmission(transmission_params, { job: job, transmission: request_transmission })
-        transaction_params        = yield construct_response_transaction_params
-        @response_transaction     = yield create_response_transaction(transaction_params, { job: job, transaction: request_transaction})
-        begin_coverage_msg        = yield begin_coverage
-        _response_updated_result  = yield update_status(begin_coverage_msg,
+        _params                      = yield validate(params)
+        @hbx_enrollment              = yield find_enrollment
+        @job                         = yield find_job_by_global_id(@job_gid)
+
+        # create transmission and transaction for request
+        request_transmission_params  = yield construct_request_transmission_params(hbx_enrollment, job)
+        @request_transmission        = yield create_request_transmission(request_transmission_params, job)
+        request_transaction_params   = yield construct_request_transaction_params(hbx_enrollment)
+        @request_transaction         = yield create_request_transaction(request_transaction_params, job)
+
+        # create transmission and transaction for response
+        response_transmission_params = yield construct_response_transmission_params
+        @response_transmission       = yield create_response_transmission(response_transmission_params, { job: job, transmission: request_transmission })
+        response_transaction_params  = yield construct_response_transaction_params
+        @response_transaction        = yield create_response_transaction(response_transaction_params, { job: job, transaction: request_transaction})
+        begin_coverage_msg           = yield begin_coverage
+        _response_updated_result     = yield update_status(begin_coverage_msg,
                                                         :succeeded,
                                                         { transaction: response_transaction, transmission: response_transmission })
 
@@ -47,9 +42,42 @@ module Operations
 
       private
 
+      def construct_request_transmission_params(enrollment, job)
+        Success(
+          {
+            job: job,
+            key: :hbx_enrollment_begin_coverage_request,
+            title: "Transmission request to begin coverage enrollment with hbx id: #{enrollment.hbx_id}.",
+            description: "Transmission request to begin coverage enrollment with hbx id: #{enrollment.hbx_id}.",
+            publish_on: Date.today,
+            started_at: DateTime.now,
+            event: 'initial',
+            state_key: :initial,
+            correlation_id: enrollment.hbx_id
+          }
+        )
+      end
+
+      def construct_request_transaction_params(enrollment)
+        Success(
+          {
+            transmission: request_transmission,
+            subject: enrollment,
+            key: :hbx_enrollment_begin_coverage_request,
+            title: "Enrollment begin coverage request transaction for #{enrollment.hbx_id}.",
+            description: "Transaction request to begin coverage of enrollment with hbx id: #{enrollment.hbx_id}.",
+            publish_on: Date.today,
+            started_at: DateTime.now,
+            event: 'initial',
+            state_key: :initial,
+            correlation_id: enrollment.hbx_id
+          }
+        )
+      end
+
       def validate(params)
         @logger = Logger.new(
-          "#{Rails.root}/log/begin_coverage_#{TimeKeeper.date_of_record.strftime('%Y_%m_%d')}.log"
+          "#{Rails.root}/log/hbx_enrollments_begin_coverage_#{TimeKeeper.date_of_record.strftime('%Y_%m_%d')}.log"
         )
 
         logger.info "Processing begin coverage request with params: #{params}"
@@ -60,46 +88,20 @@ module Operations
           return Failure(msg)
         end
 
-        unless params[:transmittable_identifiers].is_a?(Hash)
-          msg = "Invalid transmittable_identifiers in params: #{params}. Expected a hash."
-          logger.error msg
-          return Failure(msg)
-        end
-
         if params[:enrollment_gid].blank?
           msg = "Missing enrollment_gid in params: #{params}."
           logger.error msg
           return Failure(msg)
         end
 
-        if params[:transmittable_identifiers][:job_gid].blank?
-          msg = "Missing job_gid in transmittable_identifiers of params: #{params}."
-          logger.error msg
-          return Failure(msg)
-        end
-
-        if params[:transmittable_identifiers][:transmission_gid].blank?
-          msg = "Missing transmission_gid in transmittable_identifiers of params: #{params}."
-          logger.error msg
-          return Failure(msg)
-        end
-
-        if params[:transmittable_identifiers][:transaction_gid].blank?
-          msg = "Missing transaction_gid in transmittable_identifiers of params: #{params}."
-          logger.error msg
-          return Failure(msg)
-        end
-
-        if params[:transmittable_identifiers][:subject_gid].blank?
-          msg = "Missing subject_gid in transmittable_identifiers of params: #{params}."
+        if params[:job_gid].blank?
+          msg = "Missing job_gid in params: #{params}."
           logger.error msg
           return Failure(msg)
         end
 
         @hbx_enrollment_gid       = params[:enrollment_gid]
-        @job_gid                  = params[:transmittable_identifiers][:job_gid]
-        @request_transmission_gid = params[:transmittable_identifiers][:transmission_gid]
-        @request_transaction_gid  = params[:transmittable_identifiers][:transaction_gid]
+        @job_gid                  = params[:job_gid]
 
         Success(params)
       end

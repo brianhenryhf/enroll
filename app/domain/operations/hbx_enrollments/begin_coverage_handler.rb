@@ -84,7 +84,7 @@ module Operations
       end
 
       def enrollments_to_begin_query(query_criteria)
-        enrollments_to_begin = HbxEnrollment.where(query_criteria)
+        enrollments_to_begin = HbxEnrollment.where(query_criteria).only(:aasm_state, :effective_on, :kind, :_id, :hbx_id)
 
         if enrollments_to_begin.present?
           Success(enrollments_to_begin)
