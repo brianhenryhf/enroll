@@ -103,6 +103,8 @@ module Operations
           'Member Is Active?',
           'Health Cov Hbx ID',
           'Health Cov Effective On',
+          'Health Cov Applied APTC',
+          'Health Cov CSR Variant',
           'Health Cov Member Start',
           'Health Cov Member End',
           'Other Health Covs',

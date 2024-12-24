@@ -52,7 +52,7 @@ RSpec.describe ::Operations::Eligibilities::FamilyDataExportProcessor,
       :benefit_markets_products_health_products_health_product,
       benefit_market_kind: :aca_individual,
       kind: :health,
-      csr_variant_id: '01'
+      csr_variant_id: '03'
     )
   end
   let!(:product2) do
@@ -69,6 +69,7 @@ RSpec.describe ::Operations::Eligibilities::FamilyDataExportProcessor,
       :with_enrollment_members,
       enrollment_members: family.family_members,
       kind: 'individual',
+      applied_aptc_amount: Money.new(124_156),
       product: product1,
       household: family.latest_household,
       effective_on: TimeKeeper.date_of_record.beginning_of_year,
@@ -174,6 +175,17 @@ RSpec.describe ::Operations::Eligibilities::FamilyDataExportProcessor,
     it 'should build csv report' do
       result = subject.call(required_params)
       expect(result.success?).to be_truthy
+    end
+
+    it 'resport should contain enrollment applied aptc and csr values' do
+      result = subject.call(required_params)
+      csv = CSV.open(result.success, 'r', &:read)
+      expect(csv[0].include?("Health Cov Applied APTC")).to be_truthy
+      expect(csv[0].include?('Health Cov CSR Variant')).to be_truthy
+      expect(csv[0].include?("Dental Cov Applied APTC")).to be_falsey
+      expect(csv[0].include?("Dental Cov CSR Variant")).to be_falsey
+      expect(csv[1].include?("1241.56")).to be_truthy
+      expect(csv[1].include?("csr_limited")).to be_truthy
     end
   end
 

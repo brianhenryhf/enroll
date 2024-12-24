@@ -98,21 +98,27 @@ module Operations
           current_coverage = enrollments_by_kind.last
 
           if current_coverage
+            csr_variant = EligibilityDetermination::CSR_KIND_TO_PLAN_VARIANT_MAP.invert[current_coverage.product.csr_variant_id]
+            applied_aptc_amount = current_coverage.applied_aptc_amount.to_s
             enrollment_member =
               current_coverage.hbx_enrollment_members
                               .detect do |enr_member|
                 enr_member.applicant_id == family_member.id
               end
 
-            [
+            array = [
               current_coverage.hbx_id,
               current_coverage.effective_on,
               enrollment_member.coverage_start_on,
               enrollment_member.coverage_end_on,
               (enrollments_by_kind.pluck(:hbx_id) - [current_coverage.hbx_id]).join(',')
             ]
+
+            array.insert(2, applied_aptc_amount, csr_variant) if coverage_kind == "health"
+            array
           else
-            append_nil(5)
+            number_of_columns = coverage_kind == "health" ? 7 : 5
+            append_nil(number_of_columns)
           end
         end.flatten
       end
