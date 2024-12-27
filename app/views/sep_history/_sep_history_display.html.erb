@@ -158,7 +158,7 @@
           <div class="row mt-1">
             <div class="col-md-6">
               <div class="col-md-6 font-weight-bold"><%= l10n("hbx_profiles.sep_creation_date") %></div>
-              <div class="col-md-6"><%= f.created_at.to_s(:db)  %></div>
+              <div class="col-md-6"><%= f.created_at.in_time_zone('Eastern Time (US & Canada)').strftime("%Y-%m-%d %H:%M:%S") %></div>
             </div>
             <div class="col-md-6">
               <div class="col-md-6 font-weight-bold"><%= l10n("hbx_profiles.sep_optional_dates") %></div>
