@@ -119,7 +119,7 @@ describe '#start_ssa_process' do
         let!(:hbx_enrollment) do
           FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_health_product,
                             family: family, enrollment_members: [family.primary_applicant],
-                            aasm_state: 'coverage_selected', kind: 'individual')
+                            aasm_state: 'coverage_selected', kind: 'individual', effective_on: TimeKeeper.date_of_record)
         end
 
         context 'when ssa verification request is successful' do
@@ -351,7 +351,7 @@ describe '#start_vlp_process' do
       let!(:hbx_enrollment) do
         FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_health_product,
                           family: family, enrollment_members: [family.primary_applicant],
-                          aasm_state: 'coverage_selected', kind: 'individual')
+                          aasm_state: 'coverage_selected', kind: 'individual', effective_on: TimeKeeper.date_of_record)
       end
 
       context 'when vlp verification request is successful' do

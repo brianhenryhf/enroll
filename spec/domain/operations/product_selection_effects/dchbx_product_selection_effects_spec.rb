@@ -910,7 +910,7 @@ describe Operations::ProductSelectionEffects::DchbxProductSelectionEffects, "whe
   end
 
   let!(:prior_year_product) do
-    product = BenefitMarkets::Products::Product.all.by_year(2023).first
+    product = BenefitMarkets::Products::Product.all.by_year(previous_oe_year).first
     product.update_attributes(hios_id: "41842DC0400026-01", hios_base_id: "41842DC0400026", csr_variant_id: "01")
     product
   end
@@ -930,12 +930,12 @@ describe Operations::ProductSelectionEffects::DchbxProductSelectionEffects, "whe
   - it is SEP shopping for prior year
   ", dbclean: :after_each do
 
-    let!(:product_2024_1) {BenefitMarkets::Products::Product.all.by_year(2024).where(:hios_id.nin => [prior_year_product.hios_id])[0]}
-    let!(:product_2024_2) {BenefitMarkets::Products::Product.all.by_year(2024).where(:hios_id.nin => [prior_year_product.hios_id])[1]}
+    let!(:product_2025_1) {BenefitMarkets::Products::Product.all.by_year(current_year).where(:hios_id.nin => [prior_year_product.hios_id])[0]}
+    let!(:product_2025_2) {BenefitMarkets::Products::Product.all.by_year(current_year).where(:hios_id.nin => [prior_year_product.hios_id])[1]}
 
     let!(:current_enrollment_2_1) do
       FactoryBot.create(:hbx_enrollment,
-                        product_id: product_2024_1.id,
+                        product_id: product_2025_1.id,
                         kind: 'individual',
                         family: family,
                         consumer_role_id: primary_person.consumer_role.id,
@@ -949,17 +949,17 @@ describe Operations::ProductSelectionEffects::DchbxProductSelectionEffects, "whe
                         applicant_id: family.family_members[0].id)
     end
 
-    let!(:delete_enrollment){family.hbx_enrollments.by_year(2023).delete_all}
+    let!(:delete_enrollment){family.hbx_enrollments.by_year(previous_oe_year).delete_all}
 
     let!(:terminated_enrollment_current_year) do
-      enrollment = family.hbx_enrollments.by_year(2024)[0]
+      enrollment = family.hbx_enrollments.by_year(current_year)[0]
       enrollment.update_attributes(aasm_state: "coverage_terminated", terminated_on: Date.new(current_year,1,31))
-      enrollment.product = product_2024_2
+      enrollment.product = product_2025_2
       enrollment.save!
       enrollment
     end
 
-    let!(:active_enrollment_current_year) {family.hbx_enrollments.by_year(2024)[1]}
+    let!(:active_enrollment_current_year) {family.hbx_enrollments.by_year(current_year)[1]}
     let!(:product_selection) do
       Entities::ProductSelection.new({:enrollment => primary_enrollment, :product => primary_enrollment.product, :family => family})
     end
@@ -1017,10 +1017,10 @@ describe Operations::ProductSelectionEffects::DchbxProductSelectionEffects, "whe
   - it is SEP shopping for prior year
   ", dbclean: :after_each do
 
-    let!(:product_2024_1) {BenefitMarkets::Products::Product.all.by_year(2024).where(:hios_id.in => [prior_year_product.hios_id])[0]}
+    let!(:product_2025_1) {BenefitMarkets::Products::Product.all.by_year(current_year).where(:hios_id.in => [prior_year_product.hios_id])[0]}
     let!(:current_enrollment_2_1) do
       FactoryBot.create(:hbx_enrollment,
-                        product_id: product_2024_1.id,
+                        product_id: product_2025_1.id,
                         kind: 'individual',
                         family: family,
                         consumer_role_id: primary_person.consumer_role.id,
@@ -1034,17 +1034,17 @@ describe Operations::ProductSelectionEffects::DchbxProductSelectionEffects, "whe
                         applicant_id: family.family_members[0].id)
     end
 
-    let!(:delete_enrollment){family.hbx_enrollments.by_year(2023).delete_all}
+    let!(:delete_enrollment){family.hbx_enrollments.by_year(previous_oe_year).delete_all}
 
     let!(:terminated_enrollment_current_year) do
-      enrollment = family.hbx_enrollments.by_year(2024)[0]
+      enrollment = family.hbx_enrollments.by_year(current_year)[0]
       enrollment.update_attributes(aasm_state: "coverage_terminated", terminated_on: Date.new(current_year,1,31))
-      enrollment.product = product_2024_1
+      enrollment.product = product_2025_1
       enrollment.save!
       enrollment
     end
 
-    let!(:active_enrollment_current_year) {family.hbx_enrollments.by_year(2024)[1]}
+    let!(:active_enrollment_current_year) {family.hbx_enrollments.by_year(current_year)[1]}
     let!(:product_selection) do
       Entities::ProductSelection.new({:enrollment => primary_enrollment, :product => primary_enrollment.product, :family => family})
     end
@@ -1215,7 +1215,7 @@ describe Operations::ProductSelectionEffects::DchbxProductSelectionEffects, "whe
   end
 
   let!(:prior_year_product) do
-    product = BenefitMarkets::Products::Product.all.by_year(2023).first
+    product = BenefitMarkets::Products::Product.all.by_year(previous_oe_year).first
     product.update_attributes(hios_id: "41842DC0400026-01", hios_base_id: "41842DC0400026", csr_variant_id: "01")
     product
   end
@@ -1233,12 +1233,12 @@ describe Operations::ProductSelectionEffects::DchbxProductSelectionEffects, "whe
   - it is SEP shopping for prior year
   ", dbclean: :after_each do
 
-    let!(:product_2024_1) {BenefitMarkets::Products::Product.all.by_year(2024).where(:hios_id.nin => [prior_year_product.hios_id])[0]}
-    let!(:product_2024_2) {BenefitMarkets::Products::Product.all.by_year(2024).where(:hios_id.nin => [prior_year_product.hios_id])[1]}
+    let!(:product_2025_1) {BenefitMarkets::Products::Product.all.by_year(current_year).where(:hios_id.nin => [prior_year_product.hios_id])[0]}
+    let!(:product_2025_2) {BenefitMarkets::Products::Product.all.by_year(current_year).where(:hios_id.nin => [prior_year_product.hios_id])[1]}
 
     let!(:current_enrollment_2_1) do
       FactoryBot.create(:hbx_enrollment,
-                        product_id: product_2024_1.id,
+                        product_id: product_2025_1.id,
                         kind: 'individual',
                         family: family,
                         consumer_role_id: primary_person.consumer_role.id,
@@ -1252,17 +1252,17 @@ describe Operations::ProductSelectionEffects::DchbxProductSelectionEffects, "whe
                         applicant_id: family.family_members[0].id)
     end
 
-    let!(:delete_enrollment){family.hbx_enrollments.by_year(2023).delete_all}
+    let!(:delete_enrollment){family.hbx_enrollments.by_year(previous_oe_year).delete_all}
 
     let!(:terminated_enrollment_current_year) do
-      enrollment = family.hbx_enrollments.by_year(2024)[0]
+      enrollment = family.hbx_enrollments.by_year(current_year)[0]
       enrollment.update_attributes(aasm_state: "coverage_terminated", terminated_on: Date.new(current_year,1,31))
-      enrollment.product = product_2024_2
+      enrollment.product = product_2025_2
       enrollment.save!
       enrollment
     end
 
-    let!(:active_enrollment_current_year) {family.hbx_enrollments.by_year(2024)[1]}
+    let!(:active_enrollment_current_year) {family.hbx_enrollments.by_year(current_year)[1]}
     let!(:product_selection) do
       Entities::ProductSelection.new({:enrollment => primary_enrollment, :product => primary_enrollment.product, :family => family})
     end
@@ -1319,10 +1319,10 @@ describe Operations::ProductSelectionEffects::DchbxProductSelectionEffects, "whe
     - it is SEP shopping for prior year
     ", dbclean: :after_each do
 
-    let!(:product_2024_1) {BenefitMarkets::Products::Product.all.by_year(2024).where(:hios_id.in => [prior_year_product.hios_id])[0]}
+    let!(:product_2025_1) {BenefitMarkets::Products::Product.all.by_year(current_year).where(:hios_id.in => [prior_year_product.hios_id])[0]}
     let!(:current_enrollment_2_1) do
       FactoryBot.create(:hbx_enrollment,
-                        product_id: product_2024_1.id,
+                        product_id: product_2025_1.id,
                         kind: 'individual',
                         family: family,
                         consumer_role_id: primary_person.consumer_role.id,
@@ -1336,17 +1336,17 @@ describe Operations::ProductSelectionEffects::DchbxProductSelectionEffects, "whe
                         applicant_id: family.family_members[0].id)
     end
 
-    let!(:delete_enrollment){family.hbx_enrollments.by_year(2023).delete_all}
+    let!(:delete_enrollment){family.hbx_enrollments.by_year(previous_oe_year).delete_all}
 
     let!(:terminated_enrollment_current_year) do
-      enrollment = family.hbx_enrollments.by_year(2024)[0]
+      enrollment = family.hbx_enrollments.by_year(current_year)[0]
       enrollment.update_attributes(aasm_state: "coverage_terminated", terminated_on: Date.new(current_year,1,31))
-      enrollment.product = product_2024_1
+      enrollment.product = product_2025_1
       enrollment.save!
       enrollment
     end
 
-    let!(:active_enrollment_current_year) {family.hbx_enrollments.by_year(2024)[1]}
+    let!(:active_enrollment_current_year) {family.hbx_enrollments.by_year(current_year)[1]}
     let!(:product_selection) do
       Entities::ProductSelection.new({:enrollment => primary_enrollment, :product => primary_enrollment.product, :family => family})
     end

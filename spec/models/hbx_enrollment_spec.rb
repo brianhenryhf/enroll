@@ -773,7 +773,7 @@ describe '#advance_day', dbclean: :after_each do
       sponsored_benefit_package_id: current_benefit_package.id,
       household: family.active_household,
       family: family,
-      effective_on: (Date.today - 3.months),
+      effective_on: TimeKeeper.date_of_record,
       aasm_state: enr_aasm_state,
       hbx_enrollment_members: [primary, age_off_dependent],
       terminated_on: (Date.today.beginning_of_month - 1.day)

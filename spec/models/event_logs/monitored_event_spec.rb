@@ -206,8 +206,8 @@ RSpec.describe EventLogs::MonitoredEvent, type: :model, dbclean: :around_each do
       let(:payload) do
         {
           current_state: current_state,
-          title: "Aca Shop Osse Eligibility 2024",
-          state_histories: [{ effective_on: Date.new(2024, 1, 1) }]
+          title: "Aca Shop Osse Eligibility 2025",
+          state_histories: [{ effective_on: Date.new(2025, 1, 1) }]
         }
       end
 
@@ -272,7 +272,7 @@ RSpec.describe EventLogs::MonitoredEvent, type: :model, dbclean: :around_each do
           expect(
             subject[:subject]
           ).to eq benefit_sponsorship.organization.legal_name
-          expect(subject[:title]).to eq "SHOP HC4CC 2024"
+          expect(subject[:title]).to eq "SHOP HC4CC 2025"
           expect(subject[:detail]).to eq "Eligibility Created"
           expect(subject[:event_time].to_date).to eq event_log
             .event_time
@@ -294,7 +294,7 @@ RSpec.describe EventLogs::MonitoredEvent, type: :model, dbclean: :around_each do
             expect(
               subject[:subject]
             ).to eq benefit_sponsorship.organization.legal_name
-            expect(subject[:title]).to eq "SHOP HC4CC 2024"
+            expect(subject[:title]).to eq "SHOP HC4CC 2025"
             expect(subject[:detail]).to eq "Eligibility Created"
             expect(subject[:event_time].to_date).to eq event_log
               .event_time
@@ -322,7 +322,7 @@ RSpec.describe EventLogs::MonitoredEvent, type: :model, dbclean: :around_each do
           expect(
             subject[:subject]
           ).to eq benefit_sponsorship.organization.legal_name
-          expect(subject[:title]).to eq "SHOP HC4CC 2024"
+          expect(subject[:title]).to eq "SHOP HC4CC 2025"
           expect(subject[:detail]).to eq "Eligibility Created"
           expect(subject[:event_time].to_date).to eq event_log
             .event_time

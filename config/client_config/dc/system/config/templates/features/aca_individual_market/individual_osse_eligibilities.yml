@@ -59,6 +59,13 @@ registry:
           - key: :grants_offered
             item:
               - :aca_individual_osse_plan_subsidy_2025
+      - key: :aca_ivl_osse_eligibility_2026
+        item: :aca_ivl_osse_eligibility_2026
+        is_enabled: <%= ENV['IVL_OSSE_ELIGIBILITY_2026_IS_ENABLED'] || false %>
+        settings:
+          - key: :grants_offered
+            item:
+              - :aca_individual_osse_plan_subsidy_2026
   - namespace:
     - :enroll_app
     - :aca_individual_market
@@ -97,5 +104,15 @@ registry:
     - :aca_ivl_osse_eligibility_2025
     features:
       - key: :aca_individual_osse_plan_subsidy_2025
+        item: :aca_individual_osse_plan_subsidy
+        is_enabled: true
+  - namespace:
+    - :enroll_app
+    - :aca_individual_market
+    - :benefit_coverage_period
+    - :aca_ivl_osse_eligibility
+    - :aca_ivl_osse_eligibility_2026
+    features:
+      - key: :aca_individual_osse_plan_subsidy_2026
         item: :aca_individual_osse_plan_subsidy
         is_enabled: true
