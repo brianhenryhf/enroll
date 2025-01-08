@@ -28,6 +28,12 @@ class Email
   validates_inclusion_of :kind, in: KINDS, message: "%{value} is not a valid email type"
 
   validates :address,
+            format: {
+              :with => /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i,
+              :message => "should be a valid email address"
+            }
+
+  validates :address,
     presence: true
 
   def blank?

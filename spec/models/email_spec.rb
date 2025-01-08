@@ -32,6 +32,27 @@ describe Email, :dbclean => :after_each do
         end
       end
 
+      context "invalid address" do
+
+        let(:params){valid_params.deep_merge!(address: "test@test")}
+
+        it "is invalid" do
+          expect(Email.create(params).errors[:address]).to be_truthy
+          expect(Email.create(**params).errors[:address]).to eq ["should be a valid email address"]
+        end
+      end
+
+      context "valid address" do
+        let(:email) {"test@test.com"}
+        let(:params){valid_params.deep_merge!(address: email)}
+
+        it "is valid" do
+          Email.create(params)
+          person.reload
+          expect(person.emails.where(address: email).first.valid?).to be_truthy
+        end
+      end
+
       valid_types = Email::KINDS
       valid_types.each do |type|
         context("when valid #{type} address") do
@@ -53,7 +74,7 @@ describe Email, :dbclean => :after_each do
         it "should give an error" do
           record = Email.create(**params)
           expect(record.errors[:address].any?).to be_truthy
-          expect(record.errors[:address]).to eq ["is not valid", "can't be blank"]
+          expect(record.errors[:address]).to eq ["is not valid", "should be a valid email address", "can't be blank"]
         end
       end
 
@@ -62,7 +83,7 @@ describe Email, :dbclean => :after_each do
         it "should give an error" do
           record = Email.create(**params)
           expect(record.errors[:address].any?).to be_truthy
-          expect(record.errors[:address]).to eq ["is not valid"]
+          expect(record.errors[:address]).to eq ["is not valid", "should be a valid email address"]
         end
       end
 
