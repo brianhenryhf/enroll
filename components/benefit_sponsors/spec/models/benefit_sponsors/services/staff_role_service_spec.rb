@@ -520,6 +520,16 @@ module BenefitSponsors
         end
       end
 
+      context 'when there are both terminated and active broker staff for an agency' do
+        let(:person2) {FactoryBot.create(:person)}
+        let!(:active_broker_agency_staff_role) { FactoryBot.create(:broker_agency_staff_role, broker_agency_profile_id: broker_agency_profile.id, person: person2, broker_agency_profile: broker_agency_profile, aasm_state: 'broker_agency_terminated') }
+
+        it 'should return active broker staff' do
+          expect(Person.all_broker_staff_roles.count).to eq 2
+          expect(Person.staff_for_broker_including_pending(broker_agency_profile).count).to eq 1
+        end
+      end
+
       context 'person does not have broker agency staff role' do
         before do
           @status, @result = subject.deactivate_broker_agency_staff_role(person.id, broker_agency_profile_second.id)

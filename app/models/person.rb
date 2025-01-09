@@ -333,7 +333,7 @@ class Person
   scope :unverified_persons,        -> { where(:'consumer_role.aasm_state' => { "$ne" => "fully_verified" })}
   scope :matchable,                 ->(ssn, dob, last_name) { where(encrypted_ssn: Person.encrypt_ssn(ssn), dob: dob, last_name: last_name) }
   scope :broker_staff_active_or_pending, -> { where("broker_agency_staff_roles.aasm_state" => { "$in" => [:broker_agency_pending, :active] }) }
-  scope :staff_for_broker_including_pending, ->(broker_profile) { where("broker_agency_staff_roles.benefit_sponsors_broker_agency_profile_id" => broker_profile.id).broker_staff_active_or_pending }
+  scope :staff_for_broker_including_pending, ->(broker_profile) { where("broker_agency_staff_roles.benefit_sponsors_broker_agency_profile_id" => broker_profile.id).and(broker_staff_active_or_pending.selector) }
   scope :staff_for_ga_including_pending, lambda { |general_agency_profile|
     where("general_agency_staff_roles.benefit_sponsors_general_agency_profile_id" => general_agency_profile.id)
       .where("general_agency_staff_roles.aasm_state" => { "$in" => [:general_agency_pending, :active] })
