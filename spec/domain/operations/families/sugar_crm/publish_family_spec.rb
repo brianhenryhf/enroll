@@ -2,6 +2,13 @@
 
 require 'rails_helper'
 RSpec.describe Operations::Families::SugarCrm::PublishFamily, type: :model, dbclean: :after_each do
+
+  before :each do
+    allow(EnrollRegistry).to receive(:feature_enabled?).with(:async_publish_updated_families).and_return(enabled)
+  end
+
+  let(:enabled) { false }
+
   include Dry::Monads[:do, :result]
   let(:person) {FactoryBot.create(:person, :with_consumer_role)}
   let(:family) {FactoryBot.create(:family, :with_primary_family_member, person: person)}
@@ -19,8 +26,6 @@ RSpec.describe Operations::Families::SugarCrm::PublishFamily, type: :model, dbcl
 
   before do
     # Test the CRM update in isolation
-    allow(EnrollRegistry).to receive(:feature_enabled?).and_return(false)
-    allow(EnrollRegistry[:crm_update_family_save].feature).to receive(:is_enabled).and_return(false)
     DatabaseCleaner.clean
     family.family_members << dependent_family_member
     person.person_relationships << PersonRelationship.new(relative: person, kind: "self")
@@ -87,7 +92,6 @@ RSpec.describe Operations::Families::SugarCrm::PublishFamily, type: :model, dbcl
   end
 
   context 'publish payload to CRM after first name changed' do
-
     it 'should return success' do
       # first name of primary person is a critical attribute
       family.primary_applicant.person.first_name = "newname"
@@ -107,6 +111,16 @@ RSpec.describe Operations::Families::SugarCrm::PublishFamily, type: :model, dbcl
 
     it 'should return success' do
       expect(subject.call(family)).to be_a(Dry::Monads::Result::Success)
+    end
+  end
+
+  context 'when async_publish_updated_families is enabled' do
+    let(:enabled) { true }
+
+    it 'returns failure' do
+      expect(
+        subject.call(family).failure
+      ).to eq('Feature flag async_publish_updated_families is enabled. Use the new force sync method.')
     end
   end
 end

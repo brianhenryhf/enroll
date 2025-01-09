@@ -339,6 +339,8 @@ class Address
   end
 
   def set_crm_updates
+    return if EnrollRegistry.feature_enabled?(:async_publish_updated_families)
+
     return unless EnrollRegistry[:check_for_crm_updates].enabled?
     return unless person
     person.set(crm_notifiction_needed: true) if changes&.any?

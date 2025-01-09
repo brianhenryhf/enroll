@@ -526,3 +526,32 @@ describe "#kind" do
     end
   end
 end
+
+describe '#set_crm_updates' do
+  let(:person) { FactoryBot.create(:person, crm_notifiction_needed: false) }
+  let(:address) { person.addresses.first }
+
+  before do
+    allow(EnrollRegistry[:check_for_crm_updates]).to receive(:enabled?).and_return(true)
+    allow(EnrollRegistry).to receive(:feature_enabled?).with(:async_publish_updated_families).and_return(enabled_or_disabled)
+
+    address.address_2 = 'Testing new address'
+    address.person.save!
+  end
+
+  context 'enabled' do
+    let(:enabled_or_disabled) { true }
+
+    it 'does not update person' do
+      expect(address.person.crm_notifiction_needed).to be_falsey
+    end
+  end
+
+  context 'disabled' do
+    let(:enabled_or_disabled) { false }
+
+    it 'updates person' do
+      expect(address.person.crm_notifiction_needed).to be_truthy
+    end
+  end
+end

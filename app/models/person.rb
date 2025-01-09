@@ -1276,6 +1276,8 @@ class Person
   end
 
   def check_crm_updates
+    return if EnrollRegistry.feature_enabled?(:async_publish_updated_families)
+
     return unless EnrollRegistry.feature_enabled?(:check_for_crm_updates)
     write_attribute(:crm_notifiction_needed, true) if crm_attributes_changed?
   end

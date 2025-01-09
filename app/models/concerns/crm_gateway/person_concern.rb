@@ -9,6 +9,8 @@ module CrmGateway
     end
 
     def trigger_async_publish
+      return if EnrollRegistry.feature_enabled?(:async_publish_updated_families)
+
       return unless EnrollRegistry.feature_enabled?(:crm_publish_primary_subscriber)
       return unless has_active_consumer_role?
       return unless primary_family.present? && self == primary_family.primary_person
@@ -32,4 +34,3 @@ module CrmGateway
     end
   end
 end
-

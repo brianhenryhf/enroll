@@ -124,4 +124,33 @@ describe Phone, type: :model do
       expect(phone.to_s).to eq "(222) 111-3333"
     end
   end
+
+  describe '#set_crm_updates' do
+    let(:person) { FactoryBot.create(:person, crm_notifiction_needed: false) }
+    let(:phone) { person.phones.first }
+
+    before do
+      allow(EnrollRegistry[:check_for_crm_updates]).to receive(:enabled?).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:async_publish_updated_families).and_return(enabled_or_disabled)
+
+      phone.extension = '122'
+      phone.person.save!
+    end
+
+    context 'enabled' do
+      let(:enabled_or_disabled) { true }
+
+      it 'does not update person' do
+        expect(phone.person.crm_notifiction_needed).to be_falsey
+      end
+    end
+
+    context 'disabled' do
+      let(:enabled_or_disabled) { false }
+
+      it 'updates person' do
+        expect(phone.person.crm_notifiction_needed).to be_truthy
+      end
+    end
+  end
 end

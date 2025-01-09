@@ -16,6 +16,7 @@ module Operations
         # @param [ Family] instance of family
         # @return Success result
         def call(family)
+          _result = yield check_feature_enabled
           transformed_family = yield construct_payload_hash(family)
           event = yield build_event(transformed_family)
           result = yield publish(event)
@@ -23,6 +24,14 @@ module Operations
         end
 
         private
+
+        def check_feature_enabled
+          if EnrollRegistry.feature_enabled?(:async_publish_updated_families)
+            Failure("Feature flag async_publish_updated_families is enabled. Use the new force sync method.")
+          else
+            Success("Feature flag async_publish_updated_families is disabled.")
+          end
+        end
 
         # Updates should only be made to CRM gateway if critical attributes are changed
         # or new family members are added/deleted

@@ -9,6 +9,8 @@ module CrmGateway
     end
 
     def trigger_async_publish
+      return if EnrollRegistry.feature_enabled?(:async_publish_updated_families)
+
       return unless EnrollRegistry.feature_enabled?(:crm_update_family_save)
       return if EnrollRegistry.feature_enabled?(:check_for_crm_updates) && !send_to_gateway?
       Rails.logger.info("Triggering CRM family update publish for family #{self.id}")

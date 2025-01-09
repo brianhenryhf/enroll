@@ -187,6 +187,8 @@ class FamilyMember
   end
 
   def notify_family
+    return if EnrollRegistry.feature_enabled?(:async_publish_updated_families)
+
     return unless EnrollRegistry.feature_enabled?(:check_for_crm_updates)
     return unless family
     family.set(crm_notifiction_needed: true)
