@@ -406,6 +406,13 @@ module Insured::FamiliesHelper
     end
   end
 
+  def ai_an_translations_for_js
+    {
+      tribal_name_alert: I18n.t('insured.tribal_name_alert'),
+      tribal_state_alert: I18n.t('insured.tribal_state_alert')
+    }.to_json
+  end
+
   def build_consumer_role(person, family)
     if family.primary_applicant.person == person
       contact_method = person.resident_role&.contact_method ? person.resident_role.contact_method : "Paper and Electronic communications"

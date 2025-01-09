@@ -281,6 +281,8 @@ function applyListeners() {
 }
 
 var PersonValidations = (function (window, undefined) {
+  var hidden_requireds = $('[required]').not(":visible");
+
   function resetConfirmButton() {
     var btn = document.querySelector('.applicant-confirm-member');
     if (btn) {
@@ -319,6 +321,14 @@ var PersonValidations = (function (window, undefined) {
     }
   }
 
+  function getTribalTranslations() {
+    var translationsElement = document.getElementById('ai_an_translations');
+    if (translationsElement) {
+      return JSON.parse(translationsElement.getAttribute('data-translations'));
+    }
+    return {tribal_name_alert: '', tribal_state_alert: ''};
+  }
+
   function validationForIndianTribeMember(e) {
     if ($('#indian_tribe_area').length == 0) {
       return false;
@@ -329,14 +339,6 @@ var PersonValidations = (function (window, undefined) {
       $('#tribal-state-alert').addClass('hide');
       $('#tribal-name-alert').addClass('hide');
     });
-
-    if (
-      $('input[name="person[is_applying_coverage]"]').length > 0 &&
-      $('input[name="person[is_applying_coverage]"]').not(':checked').val() ==
-        'true'
-    ) {
-      return true;
-    }
 
     var tribe_member_yes = $('input#indian_tribe_member_yes').is(':checked');
     var tribe_member_no = $('input#indian_tribe_member_no').is(':checked');
@@ -360,7 +362,15 @@ var PersonValidations = (function (window, undefined) {
     if (tribe_member_yes) {
       if ($('#tribal-state').length > 0 && $('#tribal-state').val() == '') {
         resetConfirmButton();
-        $('#tribal-state-alert').show();
+        var translations = getTribalTranslations();
+        alert(translations.tribal_state_alert);
+        PersonValidations.restoreRequiredAttributes(e);
+      }
+
+      if ($('#tribal-name').length > 0 && $('#tribal-name').val() == '') {
+        resetConfirmButton();
+        var translations = getTribalTranslations();
+        alert(translations.tribal_name_alert);
         PersonValidations.restoreRequiredAttributes(e);
       }
 
