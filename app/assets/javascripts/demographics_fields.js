@@ -329,6 +329,20 @@ var PersonValidations = (function (window, undefined) {
     return {tribal_name_alert: '', tribal_state_alert: ''};
   }
 
+  function isTribalNameRequired() {
+    var tribalNameField = $('#tribal-name');
+    var tribalStateField = $('#tribal-state');
+    var enrollStateAbbr = $('#enroll_state_abbr').val();
+
+    if (tribalNameField.length > 0 && tribalNameField.val() === '') {
+      if ($('.featured_tribes_selection').length > 0) {
+        return tribalStateField.val() !== enrollStateAbbr;
+      }
+      return true;
+    }
+    return false;
+  }
+
   function validationForIndianTribeMember(e) {
     if ($('#indian_tribe_area').length == 0) {
       return false;
@@ -367,7 +381,7 @@ var PersonValidations = (function (window, undefined) {
         PersonValidations.restoreRequiredAttributes(e);
       }
 
-      if ($('#tribal-name').length > 0 && $('#tribal-name').val() == '') {
+      if (isTribalNameRequired()) {
         resetConfirmButton();
         var translations = getTribalTranslations();
         alert(translations.tribal_name_alert);
