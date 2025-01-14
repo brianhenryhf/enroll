@@ -298,7 +298,11 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
           dob: "2024-04-23",
           is_applying_coverage: false,
           same_with_primary: true,
-          is_consumer_role: true
+          is_consumer_role: true,
+          indian_tribe_member: true,
+          tribal_state: "AZ",
+          tribe_codes: [""],
+          tribal_name: "test name"
         }
       end
 

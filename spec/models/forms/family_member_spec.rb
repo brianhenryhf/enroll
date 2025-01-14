@@ -47,6 +47,20 @@ RSpec.describe Forms::FamilyMember, dbclean: :after_each, type: :form do
       end
     end
 
+    it "should require tribal_state and tribal_name when citizen_status=indian_tribe_member, not applying for coverage and feature is enabled" do
+      allow(EnrollRegistry[:indian_alaskan_tribe_details].feature).to receive(:is_enabled).and_return(true)
+      if individual_market_is_enabled?
+        subject.is_consumer_role = true
+        subject.is_applying_coverage = false
+        subject.indian_tribe_member = true
+        subject.valid?
+        expect(subject).to have_errors_on(:tribal_state)
+        expect(subject).to have_errors_on(:tribal_name)
+        expect(subject.errors[:tribal_state]).to eq ["is required when native american / alaska native is selected"]
+        expect(subject.errors[:tribal_name]).to eq ["is required when native american / alaska native is selected"]
+      end
+    end
+
     it "should not require validations on indian_tribe_member for state and name" do
       allow(EnrollRegistry[:indian_alaskan_tribe_details].feature).to receive(:is_enabled).and_return(true)
       subject.is_consumer_role = true

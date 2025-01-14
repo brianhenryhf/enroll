@@ -64,7 +64,7 @@ RSpec.describe Insured::FamilyMembersController do
         {"first_name" => "Dependent First Name", "middle_name" => "", "last_name" => "test6", "name_sfx" => "", "dob" => "2024-10-01",
          "gender" => "male", "no_ssn" => "[FILTERED]", "is_applying_coverage" => "false",
          "relationship" => "child", "us_citizen" => "false", "eligible_immigration_status" => "true",
-         "indian_tribe_member" => "true", "tribal_state" => "AZ", "tribe_codes" => [""], "tribal_name" => "6554bge", "is_incarcerated" => "false",
+         "indian_tribe_member" => "true", "tribal_state" => "AZ", "tribe_codes" => [""], "tribal_name" => "test name", "is_incarcerated" => "false",
          "ethnicity" => ["", "", "", "", "", "", ""],
          "is_consumer_role" => "true", "same_with_primary" => "false",
          "addresses" => {"0" => {"kind" => "home", "_destroy" => "false", "address_1" => "123", "address_2" => "", "city" => "test",
@@ -74,6 +74,7 @@ RSpec.describe Insured::FamilyMembersController do
       end
 
       it "should set consumer fields values to nil" do
+        allow(EnrollRegistry[:indian_alaskan_tribe_details].feature).to receive(:is_enabled).and_return(true)
         expect(dependent_consumer_role.is_applying_coverage).to eq true
         expect(dependent_consumer_role.is_incarcerated).to eq false
         put :update, params: {id: family_member.id, dependent: dependent_update_properties}

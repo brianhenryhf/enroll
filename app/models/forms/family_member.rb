@@ -45,21 +45,31 @@ module Forms
 
     def consumer_fields_validation
       return true unless individual_market_is_enabled?
-      if (@is_consumer_role.to_s == "true" && is_applying_coverage.to_s == "true")#only check this for consumer flow.
-        if @us_citizen.nil?
-          self.errors.add(:base, "Citizenship status is required")
-        elsif @us_citizen == false && (@eligible_immigration_status.nil? && EnrollRegistry[:immigration_status_question_required].item)
-          self.errors.add(:base, "Eligible immigration status is required")
-        elsif @us_citizen == true && @naturalized_citizen.nil?
-          self.errors.add(:base, "Naturalized citizen is required")
-        end
-
-        self.errors.add(:base, "native american / alaska native status is required") if @indian_tribe_member.nil?
-        validate_tribe_details if @indian_tribe_member
+      if @is_consumer_role.to_s == "true"
+        validate_applying_coverage_fields if is_applying_coverage.to_s == "true"
+        validate_native_american_status
       end
 
       return unless (@is_resident_role.to_s == "true" || @is_consumer_role.to_s == "true") && is_applying_coverage.to_s == "true" && @is_incarcerated.nil?
       self.errors.add(:base, "Incarceration status is required")
+    end
+
+    def validate_applying_coverage_fields
+      if @us_citizen.nil?
+        self.errors.add(:base, "Citizenship status is required")
+      elsif @us_citizen == false && (@eligible_immigration_status.nil? && EnrollRegistry[:immigration_status_question_required].item)
+        self.errors.add(:base, "Eligible immigration status is required")
+      elsif @us_citizen == true && @naturalized_citizen.nil?
+        self.errors.add(:base, "Naturalized citizen is required")
+      end
+    end
+
+    def validate_native_american_status
+      if @indian_tribe_member.nil?
+        self.errors.add(:base, "native american / alaska native status is required")
+      elsif @indian_tribe_member
+        validate_tribe_details
+      end
     end
 
     def validate_tribe_details
@@ -68,10 +78,14 @@ module Forms
         validate_featured_tribes if FinancialAssistanceRegistry[:featured_tribes_selection].enabled?
         self.errors.add(:tribal_name, "is required when native american / alaska native is selected") if !tribal_name.present? && !FinancialAssistanceRegistry[:featured_tribes_selection].enabled?
         self.errors.add(:tribal_name, "cannot contain numbers") unless (tribal_name =~ /\d/).nil?
-      else
-        self.errors.add(:tribal_id, "is required when native american / alaska native is selected") unless tribal_id.present?
-        self.errors.add(:tribal_id, "Tribal id must be 9 digits") if tribal_id.present? && !tribal_id.match("[0-9]{9}")
+      elsif is_applying_coverage.to_s == "true"
+        validate_tribal_id
       end
+    end
+
+    def validate_tribal_id
+      errors.add(:tribal_id, "is required when native american / alaska native is selected") unless tribal_id.present?
+      errors.add(:tribal_id, "Tribal id must be 9 digits") if tribal_id.present? && !tribal_id.match?(/\A\d{9}\z/)
     end
 
     def validate_featured_tribes
